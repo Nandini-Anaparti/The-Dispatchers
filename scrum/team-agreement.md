@@ -1,4 +1,4 @@
-# Team Details and Team Agreement
+# Team Agreement V1
 
 **Team Name:** The Dispatchers
 
@@ -6,13 +6,13 @@
 
 **Lab Section:** L02 - Tuesdays, 2:00–4:00 PM
 
-## 1. Team Values
+## 1\. Team Values
 
 Our team will be guided by respect, accountability, communication, reliability, inclusion, and fairness. We will be mindful of each team member’s commitments and responsibilities outside of the course while ensuring that everyone contributes fairly toward our shared goal of producing high-quality work.
 
 We will communicate openly, support one another when difficulties arise, and create an environment where everyone feels comfortable sharing ideas, concerns, and feedback.
 
-## 2. Meetings
+## 2\. Meetings
 
 ### How often will you meet?
 
@@ -26,13 +26,13 @@ Meetings may be held online or in person depending on the team’s availability 
 
 If a team member cannot attend a meeting, they should notify the group beforehand whenever possible. The absent member is responsible for reviewing the meeting notes and asking questions about anything they missed. If the meeting depends significantly on that member’s participation, they should provide as much notice as possible so that the team can determine whether the meeting should be rescheduled.
 
-## 3. Communication
+## 3\. Communication
 
 The team will use WhatsApp as the primary communication platform for messages, updates, and coordination. For urgent matters, team members may send a direct WhatsApp message or call the relevant team member.
 
 Important information affecting the entire group will be communicated in the group chat and discussed during team meetings when appropriate. Key decisions and updates from meetings will also be documented so that all members can refer back to them.
 
-## 4. Response Expectations
+## 4\. Response Expectations
 
 Team members are expected to check team communications at least once per day and respond to non-urgent messages within approximately 24 hours when a response is required.
 
@@ -40,7 +40,7 @@ For urgent matters, team members should aim to respond within 3 hours during rea
 
 If a member repeatedly fails to respond, the team will first communicate with them directly to understand the situation and try to find a solution. If the problem continues, it will be discussed as a group. Involving the TA or instructor will be considered a last resort if the issue cannot be resolved internally.
 
-## 5. Respect & Professional Conduct
+## 5\. Respect \& Professional Conduct
 
 ### What does respectful behaviour mean to your team?
 
@@ -52,13 +52,13 @@ Whenever possible, tasks will be matched with members’ strengths and interests
 
 Unacceptable behaviours include:
 
-- Repeatedly arriving late or missing meetings without notice
-- Consistently failing to respond to important team communications
-- Leaving assigned work until the last minute
-- Missing agreed-upon internal deadlines without communicating with the team
-- Dismissing or disrespecting another member’s ideas
-- Withholding information that affects the team’s work
-- Consistently contributing significantly less than other members without discussing the situation with the team
+* Repeatedly arriving late or missing meetings without notice
+* Consistently failing to respond to important team communications
+* Leaving assigned work until the last minute
+* Missing agreed-upon internal deadlines without communicating with the team
+* Dismissing or disrespecting another member’s ideas
+* Withholding information that affects the team’s work
+* Consistently contributing significantly less than other members without discussing the situation with the team
 
 The team will aim to establish an internal deadline approximately two days before the official assignment deadline. This will provide time for peer review, integration, testing, debugging, and final revisions.
 
@@ -68,7 +68,7 @@ Work will be divided as fairly as possible through group discussion. Team member
 
 Everyone will have an opportunity to contribute to discussions and decisions. We will encourage members to speak up when they disagree or believe that work has been distributed unfairly.
 
-## 6. Accountability
+## 6\. Accountability
 
 If a team member does not meet an agreed-upon expectation, the team will first discuss the situation with them to understand why. We recognize that missed expectations may result from circumstances outside a member’s control, so these situations will be approached with understanding and open communication.
 
@@ -78,7 +78,7 @@ Whenever possible, important work will be peer-reviewed by at least one other te
 
 Repeated accountability issues will first be addressed within the group. If the team cannot resolve the problem after reasonable attempts, the issue may be brought to the TA or instructor.
 
-## 7. Decision-Making
+## 7\. Decision-Making
 
 The team will aim to make decisions collectively through discussion and consensus. Everyone will have an opportunity to explain their reasoning, concerns, and preferences before an important decision is finalized.
 
@@ -88,7 +88,7 @@ For technical or task-specific decisions, the team will also consider members’
 
 If a significant disagreement cannot be resolved through discussion, compromise, or voting, the team may ask the TA or instructor for guidance.
 
-## 8. Conflict Resolution
+## 8\. Conflict Resolution
 
 When a disagreement occurs, the team will address it as early as possible rather than allowing the issue to continue unresolved.
 
@@ -103,7 +103,7 @@ The team will:
 
 Conflicts will focus on the issue or work itself rather than the individuals involved.
 
-## 9. Anticipated Challenges
+## 9\. Anticipated Challenges
 
 Potential challenges include scheduling conflicts, missed meetings, approaching deadlines, unequal workloads, communication difficulties, and disagreements regarding project decisions.
 
@@ -113,7 +113,7 @@ If someone misses a meeting, they will review the meeting notes and follow up on
 
 The team will regularly discuss workload distribution to ensure contributions remain reasonably fair throughout the project. Communication or contribution problems will first be addressed directly and respectfully within the group before involving the TA or instructor.
 
-## 10. Individual Commitments
+## 10\. Individual Commitments
 
 ### Ayah
 
@@ -135,14 +135,12 @@ I commit to completing my assigned work on time and to a standard that supports 
 
 By signing below, each team member confirms that they have reviewed and agree to follow this Team Agreement throughout the course.
 
-- **Ayah Hamdona:** Ayah Hamdona  
-  **Date:** September 18, 2026
+* **Ayah Hamdona:** Ayah Hamdona  
+**Date:** September 18, 2026
+* **Anjana Ratnala:** Anjana Ratnala  
+**Date:** September 18, 2026
+* **Nandini Anaparti:** Nandini Anaparti
+**Date:** September 18, 2026
+* **Doménica Vizcaino Andrade:** Domenica Lilia Vizcaino Andrade  
+**Date:** September 18, 2026
 
-- **Anjana Ratnala:** Anjana Ratnala  
-  **Date:** September 18, 2026
-
-- **Nandini Anaparti:** Nandini Anaparti
-  **Date:** September 18, 2026
-
-- **Doménica Vizcaino Andrade:** Domenica Lilia Vizcaino Andrade  
-  **Date:** September 18, 2026
