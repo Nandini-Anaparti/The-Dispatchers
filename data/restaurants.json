@@ -1,0 +1,12 @@
+[
+  {"id": 1, "name": "La Vela Pizzeria", "cuisine": "Italian", "rating": 4.7, "delivery_time_minutes": 30, "delivery_fee": 2.99, "address": "444 Bernard Ave", "is_open": true},
+  {"id": 2, "name": "Kaya Sushi", "cuisine": "Japanese", "rating": 4.5, "delivery_time_minutes": 40, "delivery_fee": 3.49, "address": "1730 Pier Mac Way", "is_open": true},
+  {"id": 3, "name": "Golden Masala", "cuisine": "Indian", "rating": 4.4, "delivery_time_minutes": 35, "delivery_fee": 2.49, "address": "78 Curry Lane", "is_open": false},
+  {"id": 4, "name": "El Taquero", "cuisine": "Mexican", "rating": 4.6, "delivery_time_minutes": 25, "delivery_fee": 1.99, "address": "1443 Ellis St", "is_open": true},
+  {"id": 5, "name": "Golden Island", "cuisine": "Chinese", "rating": 4.3, "delivery_time_minutes": 20, "delivery_fee": 2.79, "address": "975 Academy Way", "is_open": true},
+  {"id": 6, "name": "BNA Burger", "cuisine": "American", "rating": 4.8, "delivery_time_minutes": 20, "delivery_fee": 1.49, "address": "1254 Ellis St", "is_open": true},
+  {"id": 7, "name": "Yamas Taverna", "cuisine": "Mediterranean", "rating": 4.6, "delivery_time_minutes": 45, "delivery_fee": 3.99, "address": "1630 Ellis St", "is_open": true},
+  {"id": 8, "name": "Sol Korea", "cuisine": "Korean", "rating": 4.6, "delivery_time_minutes": 38, "delivery_fee": 3.29, "address": "1195 Richter St", "is_open": false},
+  {"id": 9, "name": "Pandan Thai Eatery", "cuisine": "Thai", "rating": 4.8, "delivery_time_minutes": 33, "delivery_fee": 2.59, "address": "482 West Ave", "is_open": true},
+  {"id": 10, "name": "Bouchons Bistro", "cuisine": "French", "rating": 4.5, "delivery_time_minutes": 50, "delivery_fee": 4.49, "address": "1180 Sunset Dr", "is_open": true}
+]
