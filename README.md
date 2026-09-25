@@ -121,46 +121,6 @@ python -m pytest
 
 Add `-v` to see each test by name. The tests cover the health endpoint, the restaurant endpoints (including a missing restaurant returning `404`), repository behaviour, and failure cases such as a missing or invalid data file. All tests use temporary data created with pytest's `tmp_path`.
 
-On Windows PowerShell, you can also run tests without activating the environment:
-
-```powershell
-.\.venv\Scripts\python.exe -m pytest -v
-```
-
-You do not need to start Uvicorn: FastAPI's `TestClient` runs requests inside
-the test process.
-
-The test setup works as follows:
-
-1. `sample_restaurants` in `tests/conftest.py` supplies two fictional restaurants.
-2. `temp_data_file` writes them to a separate `tmp_path` directory for each test.
-3. `client` uses `monkeypatch` to set `RESTAURANTS_DATA_PATH` to that file.
-   Pytest restores the environment variable after each test.
-4. Tests send requests or call the repository and use `assert` to check results.
-   Failure tests use `pytest.raises` to check expected exceptions.
-
-The tests cover all four required areas:
-
-| Requirement | What was checked |
-|-------------|------------------|
-| Health endpoint | `/health` returns `200` and `{"status": "ok"}`. |
-| Restaurant-list operation | `/restaurants` returns the expected restaurants and handles an empty list. |
-| Restaurant data/repository behavior | Reads correct records, looks up IDs, and leaves the data file unchanged. |
-| Meaningful invalid or failure case | Missing files, malformed JSON, missing required fields, unknown IDs (`404`), and non-integer IDs (`422`). |
-
-The corresponding test files are:
-
-| Requirement | Tests |
-|-------------|-------|
-| Health endpoint status and JSON | `tests/test_health.py` |
-| Restaurant list contents and empty list | `tests/test_restaurants_api.py` |
-| Repository reads, lookups, and unchanged file contents | `tests/test_restaurant_repository.py` |
-| Missing file, malformed JSON, invalid structure | `tests/test_restaurant_repository.py` |
-| Unknown restaurant (404), non-integer ID (422) | `tests/test_restaurant_by_id.py` |
-
-The suite does not read or modify `data/restaurants.json`; all data checks use
-temporary fixtures.
-
 <!-- TODO: Continuous Integration section. Describe the GitHub Actions workflow (file location, when it runs, how to see results). -->
 
 ## Repository Structure

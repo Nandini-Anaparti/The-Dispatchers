@@ -24,9 +24,7 @@ def temp_data_file(tmp_path, sample_restaurants):
 
 @pytest.fixture
 def client(temp_data_file, monkeypatch):
-    # Redirect requests to this test's temporary file; monkeypatch restores
-    # the previous environment variable automatically after the test.
+    # CHANGE: env var name must match what your config in app/core uses
     monkeypatch.setenv("RESTAURANTS_DATA_PATH", str(temp_data_file))
     from app.main import app
-    with TestClient(app) as test_client:
-        yield test_client
+    return TestClient(app)
