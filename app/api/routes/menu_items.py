@@ -25,16 +25,35 @@ def get_menu_service():
 
     return MenuItemService(menu_repo, restaurant_repo)
 
+
 @router.get("", response_model=list[MenuItem])
 def get_menu_items(
     restaurant_id: int,
+    name: str | None = None,
+    max_price: float | None = None,
+    is_available: bool | None = None,
     service: MenuItemService = Depends(get_menu_service)
 ):
-    """Get all menu items for a restaurant."""
+    """Get all menu items from a restaurant, with optional filters."""
+    if max_price is not None and max_price < 0:
+        raise HTTPException(
+            status_code=422,
+            detail="Maximum price cannot be negative"
+        )
+
     try:
-        return service.get_menu_items(restaurant_id)
+        return service.get_menu_items(
+            restaurant_id,
+            name,
+            max_price,
+            is_available
+        )
     except RestaurantNotFoundError:
-        raise HTTPException(status_code=404, detail="Restaurant not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Restaurant not found"
+        )
+
 
 @router.get("/{item_id}", response_model=MenuItem)
 def get_menu_item(

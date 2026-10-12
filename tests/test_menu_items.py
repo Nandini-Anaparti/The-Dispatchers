@@ -174,3 +174,98 @@ def test_add_invalid_price(tmp_path, monkeypatch):
     response = client.post("/restaurants/1/menu-items", json=new_item)
 
     assert response.status_code == 422
+
+
+def test_filter_by_price(tmp_path, monkeypatch):
+    file_path = tmp_path / "menu_items.json"
+
+    items = [
+        {
+            "id": 1,
+            "restaurant_id": 1,
+            "name": "Pizza",
+            "description": "Cheese pizza",
+            "price": 15.99,
+            "is_available": True
+        },
+        {
+            "id": 2,
+            "restaurant_id": 1,
+            "name": "Garlic Bread",
+            "description": "Garlic bread",
+            "price": 5.99,
+            "is_available": True
+        }
+    ]
+
+    file_path.write_text(json.dumps(items))
+    monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
+
+    response = client.get("/restaurants/1/menu-items?max_price=10")
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["name"] == "Garlic Bread"
+
+
+def test_filter_by_availability(tmp_path, monkeypatch):
+    file_path = tmp_path / "menu_items.json"
+
+    items = [
+        {
+            "id": 1,
+            "restaurant_id": 1,
+            "name": "Pizza",
+            "description": "Cheese pizza",
+            "price": 15.99,
+            "is_available": True
+        },
+        {
+            "id": 2,
+            "restaurant_id": 1,
+            "name": "Pasta",
+            "description": "Tomato pasta",
+            "price": 12.99,
+            "is_available": False
+        }
+    ]
+
+    file_path.write_text(json.dumps(items))
+    monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
+
+    response = client.get("/restaurants/1/menu-items?is_available=true")
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["name"] == "Pizza"
+
+def test_filter_by_name(tmp_path, monkeypatch):
+    file_path = tmp_path / "menu_items.json"
+
+    items = [
+        {
+            "id": 1,
+            "restaurant_id": 1,
+            "name": "Cheese Pizza",
+            "description": "Cheese pizza",
+            "price": 12.99,
+            "is_available": True
+        },
+        {
+            "id": 2,
+            "restaurant_id": 1,
+            "name": "Pasta",
+            "description": "Tomato pasta",
+            "price": 11.99,
+            "is_available": True
+        }
+    ]
+
+    file_path.write_text(json.dumps(items))
+    monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
+
+    response = client.get("/restaurants/1/menu-items?name=PIZZA")
+
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["name"] == "Cheese Pizza"
