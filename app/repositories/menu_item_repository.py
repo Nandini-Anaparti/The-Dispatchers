@@ -48,12 +48,16 @@ class MenuItemRepository:
         return item
 
     def update_item(self, item_id, updated_item):
-        items = self.get_all()
+    items = self.get_all()
 
-        for item in items:
-            if item.id == item_id:
-                items.update(updated_item)
-                self.save_all(items)
-                return item
+    for item in items:
+        if item.id == item_id:
+            item.name = updated_item.name
+            item.description = updated_item.description
+            item.price = updated_item.price
+            item.is_available = updated_item.is_available
 
-        return None
+            self.save_all(items)
+            return item
+
+    return None
