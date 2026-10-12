@@ -8,3 +8,15 @@ class MenuItem(BaseModel):
     description: str
     price: float = Field(gt=0)
     is_available: bool
+
+class MenuItemCreate(BaseModel):
+    name: str
+    description: str
+    price: float = Field(gt=0)
+    is_available: bool = True
+
+class MenuItemUpdate(BaseModel):
+    name: str
+    description: str
+    price: float = Field(gt=0)
+    is_available: bool
