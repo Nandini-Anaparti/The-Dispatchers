@@ -12,7 +12,7 @@ from pathlib import Path
 # Project root = two folders up from this file (app/core/config.py -> project root)
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESTAURANTS_PATH = PROJECT_ROOT / "data" / "restaurants.json"
-
+DEFAULT_MENU_ITEMS_PATH = PROJECT_ROOT / "data" / "menu_items.json"
 
 def get_restaurants_data_path() -> Path:
     """Return the path to the restaurant data file.
@@ -21,3 +21,6 @@ def get_restaurants_data_path() -> Path:
     can set RESTAURANTS_DATA_PATH to a temporary file and the app picks it up.
     """
     return Path(os.getenv("RESTAURANTS_DATA_PATH", str(DEFAULT_RESTAURANTS_PATH)))
+
+def get_menu_items_data_path():
+    return Path(os.getenv("MENU_ITEMS_DATA_PATH", str(DEFAULT_MENU_ITEMS_PATH)))
