@@ -5,13 +5,31 @@ class MenuItemService:
         self.menu_repository = menu_repository
         self.restaurant_repository = restaurant_repository
 
-    def get_menu_items(self, restaurant_id):
+    def get_menu_items(self, restaurant_id, name=None, max_price=None, is_available=None):
         restaurant = self.restaurant_repository.get_by_id(restaurant_id)
 
         if restaurant is None:
             raise RestaurantNotFoundError()
 
-        return self.menu_repository.get_by_restaurant(restaurant_id)
+        items = self.menu_repository.get_by_restaurant(restaurant_id)
+        filtered_items = []
+
+        for item in items:
+            if name is not None:
+                if name.lower() not in item.name.lower():
+                    continue
+
+            if max_price is not None:
+                if item.price > max_price:
+                    continue
+
+            if is_available is not None:
+                if item.is_available != is_available:
+                    continue
+
+            filtered_items.append(item)
+
+        return filtered_items
 
     def get_menu_item(self, restaurant_id, item_id):
         restaurant = self.restaurant_repository.get_by_id(restaurant_id)

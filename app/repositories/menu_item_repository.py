@@ -52,8 +52,11 @@ class MenuItemRepository:
 
         for item in items:
             if item.id == item_id:
-                items.update(updated_item)
+                item.name = updated_item.name
+                item.description = updated_item.description
+                item.price = updated_item.price
+                item.is_available = updated_item.is_available
+
                 self.save_all(items)
                 return item
-
         return None
