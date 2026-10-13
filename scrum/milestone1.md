@@ -3,9 +3,9 @@
 ## Sprint Information
 
 - **Sprint / Milestone:** Milestone 1 – First Vertical Slice
-- **Sprint dates:** [YYYY-MM-DD to YYYY-MM-DD]
-- **Planning meeting date:** [YYYY-MM-DD]
-- **Facilitator:** [Name]
+- **Sprint dates:** [2026-09-29 to 2026-10-16]
+- **Planning meeting date:** [2026-09-28]
+- **Facilitator:** [Domenica]
 
 ### Team Members
 
