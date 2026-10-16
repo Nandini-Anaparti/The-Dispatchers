@@ -5,7 +5,7 @@ touches files directly and never deals with HTTP details.
 """
 
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.schemas.restaurant import Restaurant
+from app.schemas.restaurant import Restaurant, RestaurantCreate, RestaurantUpdate
 
 
 class RestaurantNotFoundError(Exception):
@@ -50,3 +50,18 @@ class RestaurantService:
         if restaurant is None:
             raise RestaurantNotFoundError(f"Restaurant {restaurant_id} not found")
         return restaurant
+
+    def create_restaurant(self, data: RestaurantCreate) -> Restaurant:
+        """Create a restaurant with the next free id (highest id + 1)."""
+        existing = self.repository.get_all()
+        next_id = max((r.id for r in existing), default=0) + 1
+        restaurant = Restaurant(id=next_id, **data.model_dump())
+        return self.repository.add(restaurant)
+
+    def update_restaurant(self, restaurant_id: int, changes: RestaurantUpdate) -> Restaurant:
+        """Apply only the fields that were sent, keep everything else the same."""
+        current = self.get_restaurant(restaurant_id)  # raises RestaurantNotFoundError
+        updated = current.model_copy(update=changes.model_dump(exclude_unset=True))
+        # Re-validate so the merged result still follows the Restaurant rules.
+        updated = Restaurant(**updated.model_dump())
+        return self.repository.update(updated)

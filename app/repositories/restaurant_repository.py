@@ -45,3 +45,36 @@ class RestaurantRepository:
             if restaurant.id == restaurant_id:
                 return restaurant
         return None
+
+    def save_all(self, restaurants: list[Restaurant]) -> None:
+        """Write the full list of restaurants back to the data file.
+
+        Writes to a temporary file first and then swaps it in, so a crash
+        halfway through can never leave a half-written restaurants.json.
+        """
+        tmp_path = self.data_path.with_suffix(".tmp")
+        tmp_path.write_text(
+            json.dumps([r.model_dump() for r in restaurants], indent=2),
+            encoding="utf-8",
+        )
+        tmp_path.replace(self.data_path)
+
+    def add(self, restaurant: Restaurant) -> Restaurant:
+        """Append a new restaurant and save."""
+        restaurants = self.get_all()
+        restaurants.append(restaurant)
+        self.save_all(restaurants)
+        return restaurant
+
+    def update(self, restaurant: Restaurant) -> Restaurant | None:
+        """Replace the stored restaurant that has the same id, then save.
+
+        Returns None if no restaurant has that id.
+        """
+        restaurants = self.get_all()
+        for index, existing in enumerate(restaurants):
+            if existing.id == restaurant.id:
+                restaurants[index] = restaurant
+                self.save_all(restaurants)
+                return restaurant
+        return None

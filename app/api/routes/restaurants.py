@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.config import get_restaurants_data_path
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.schemas.restaurant import Restaurant
+from app.schemas.restaurant import Restaurant, RestaurantCreate, RestaurantUpdate
 from app.services.restaurant_service import RestaurantNotFoundError, RestaurantService
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
@@ -41,5 +41,31 @@ def get_restaurant(restaurant_id: int, service: RestaurantService = Depends(get_
     """Return one restaurant by id, or 404 if it does not exist."""
     try:
         return service.get_restaurant(restaurant_id)
+    except RestaurantNotFoundError:
+        raise HTTPException(status_code=404, detail=f"Restaurant {restaurant_id} not found")
+
+
+
+@router.post("", response_model=Restaurant, status_code=201)
+def create_restaurant(data: RestaurantCreate, service: RestaurantService = Depends(get_restaurant_service)):
+    """Create a new restaurant. The server assigns the id.
+
+    Returns 201 with the created restaurant, or 422 if the body is invalid.
+    """
+    return service.create_restaurant(data)
+
+
+@router.put("/{restaurant_id}", response_model=Restaurant)
+def update_restaurant(
+    restaurant_id: int,
+    changes: RestaurantUpdate,
+    service: RestaurantService = Depends(get_restaurant_service),
+):
+    """Update a restaurant. Only the fields you send are changed.
+
+    Returns 404 if the restaurant does not exist, or 422 if a field is invalid.
+    """
+    try:
+        return service.update_restaurant(restaurant_id, changes)
     except RestaurantNotFoundError:
         raise HTTPException(status_code=404, detail=f"Restaurant {restaurant_id} not found")
