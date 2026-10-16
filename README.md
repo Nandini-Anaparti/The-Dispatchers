@@ -109,9 +109,15 @@ Tests in `tests/test_frontend.py` verify that the page and static assets are ser
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health check. Returns `200` and `{"status": "ok"}` |
-| GET | `/restaurants` | Returns the list of all restaurants |
+| GET | `/restaurants` | Returns all restaurants. Optional filters: `name` (partial, case-insensitive), `cuisine`, `is_open`, `min_rating` (0 to 5, otherwise `422`) |
 | GET | `/restaurants/{restaurant_id}` | Returns one restaurant, or `404` if the id does not exist |
+| POST | `/restaurants` | Creates a restaurant (server assigns the id). Returns `201`, or `422` if the body is invalid |
+| PUT | `/restaurants/{restaurant_id}` | Updates only the fields sent. Returns `404` if the id does not exist, or `422` if a field is invalid |
 | GET | `/docs` | Interactive OpenAPI (Swagger) documentation |
+
+Example filter: `/restaurants?cuisine=italian&is_open=true` returns open Italian restaurants.
+
+Restaurant menu item endpoints are under `/restaurants/{restaurant_id}/menu-items`. See `/docs` for the full list.
 
 No API prefix is used. For example, the restaurant list is at http://127.0.0.1:8000/restaurants and the docs are at http://127.0.0.1:8000/docs.
 
