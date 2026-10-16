@@ -74,6 +74,36 @@ docker compose up --build
 
 The API runs at http://localhost:8000. Stop it with `Ctrl+C`, then `docker compose down`.
 
+## Frontend — Milestone 1
+
+The application includes a basic restaurant-browsing frontend built with
+HTML, CSS, and JavaScript.
+
+Start the application:
+
+```bash
+python -m uvicorn app.main:app --reload
+
+Note: now instead of starting the application and returning a message saying the application is running, the webpage will load.
+
+Open http://127.0.0.1:8000/ in your browser.
+
+The frontend supports:
+
+- Viewing restaurants retrieved from the REST API.
+- Searching restaurants by name and filtering by cuisine.
+- Viewing a selected restaurant's details.
+- Viewing its menu items, prices, and availability.
+- Loading, empty-result, and error messages.
+
+Search and cuisine filtering currently run in the browser using restaurant data retrieved from the API.
+
+Frontend files are located in `frontend/`: `index.html`, `styles.css`, and `browsing.js`.
+
+`GET /` now serves the frontend page instead of the original JSON welcome message. API documentation remains available at `/docs`.
+
+Tests in `tests/test_frontend.py` verify that the page and static assets are served correctly and missing assets return 404. These tests do not execute browser interactions.
+
 ## API Endpoints
 
 | Method | Path | Description |

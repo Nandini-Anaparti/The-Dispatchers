@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Restaurants | The Dispatchers</title>
+  <link rel="stylesheet" href="/frontend/styles.css">
+  <script src="/frontend/browsing.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">The Dispatchers</a>
+    <span>Discover your next favourite meal</span>
+  </header>
+
+  <main>
+    <section aria-labelledby="page-title">
+      <h1 id="page-title">Find your next favourite meal</h1>
+      <p>Explore restaurants and discover what’s on the menu.</p>
+
+      <form id="search-form" class="search-controls">
+        <div>
+          <label for="search">Search restaurants</label>
+          <input
+            id="search"
+            name="search"
+            type="search"
+            placeholder="Enter a restaurant name"
+          >
+        </div>
+
+        <div>
+          <label for="cuisine">Cuisine</label>
+          <select id="cuisine" name="cuisine">
+            <option value="">All cuisines</option>
+          </select>
+        </div>
+
+        <button type="submit">Search</button>
+      </form>
+    </section>
+
+    <section aria-labelledby="restaurants-heading">
+      <h2 id="restaurants-heading">Explore restaurants</h2>
+      <p id="restaurant-status" role="status" aria-live="polite"></p>
+      <div id="restaurant-list" class="restaurant-grid"></div>
+    </section>
+
+    <section id="restaurant-details" aria-labelledby="details-heading" hidden>
+      <button id="back-button" type="button">← Back to restaurants</button>
+      <h2 id="details-heading" tabindex="-1">Restaurant details</h2>
+      <p id="details-status" role="status" aria-live="polite"></p>
+      <div id="restaurant-info"></div>
+
+      <h3 id="menu-heading" hidden>Menu</h3>
+      <div id="menu-list" class="menu-grid"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>The Dispatchers · Restaurant discovery and menu browsing</p>
+  </footer>
+</body>
+</html>
