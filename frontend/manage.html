@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Restaurants | The Dispatchers</title>
+  <link rel="stylesheet" href="/frontend/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">The Dispatchers</a>
+    <span>Restaurant management</span>
+  </header>
+
+  <main>
+    <section>
+      <a href="/">&larr; Back to restaurants</a>
+      <h1>Manage Restaurants</h1>
+      <p id="error" class="error" role="alert"></p>
+      <p id="success" role="status" style="color:#27633c"></p>
+
+      <div>
+        <label for="restaurant-select">Pick a restaurant to edit</label>
+        <select id="restaurant-select"></select>
+      </div>
+    </section>
+
+    <section>
+      <form id="restaurant-form" class="search-controls" style="flex-direction:column; align-items:stretch">
+        <div><label for="r-name">Name</label><input id="r-name" required></div>
+        <div><label for="r-cuisine">Cuisine</label><input id="r-cuisine" required></div>
+        <div><label for="r-rating">Rating (0-5)</label><input id="r-rating" type="number" step="0.1" min="0" max="5" required></div>
+        <div><label for="r-time">Delivery time (minutes)</label><input id="r-time" type="number" min="0" required></div>
+        <div><label for="r-fee">Delivery fee</label><input id="r-fee" type="number" step="0.01" min="0" required></div>
+        <div><label for="r-address">Address</label><input id="r-address" required></div>
+        <div><label><input id="r-open" type="checkbox" checked style="width:auto; min-height:0"> Open</label></div>
+        <button type="submit" id="r-submit">Create restaurant</button>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    let restaurantId = null; // null = create new, number = edit that restaurant
+
+    function showError(msg)   { $("error").textContent = msg; $("success").textContent = ""; }
+    function showSuccess(msg) { $("success").textContent = msg; $("error").textContent = ""; }
+
+    // Turns a failed response into readable text (404 message or 422 field errors)
+    async function errorMessage(res) {
+      try {
+        const body = await res.json();
+        if (typeof body.detail === "string") return body.detail;
+        if (Array.isArray(body.detail))
+          return body.detail.map(d => d.loc.join(".") + ": " + d.msg).join("; ");
+      } catch (e) {}
+      return "Request failed (" + res.status + ")";
+    }
+
+    async function api(method, path, body) {
+      const options = { method: method };
+      if (body) {
+        options.headers = { "Content-Type": "application/json" };
+        options.body = JSON.stringify(body);
+      }
+      const res = await fetch(path, options);
+      if (!res.ok) throw new Error(await errorMessage(res));
+      return res.json();
+    }
+
+    async function loadDropdown(selectedId) {
+      const select = $("restaurant-select");
+      select.replaceChildren(new Option("-- New restaurant --", ""));
+      const restaurants = await api("GET", "/restaurants");
+      restaurants.forEach(r => select.add(new Option(r.id + ": " + r.name, r.id)));
+      select.value = selectedId || "";
+    }
+
+    function fillForm(r) {
+      $("r-name").value = r ? r.name : "";
+      $("r-cuisine").value = r ? r.cuisine : "";
+      $("r-rating").value = r ? r.rating : "";
+      $("r-time").value = r ? r.delivery_time_minutes : "";
+      $("r-fee").value = r ? r.delivery_fee : "";
+      $("r-address").value = r ? r.address : "";
+      $("r-open").checked = r ? r.is_open : true;
+      $("r-submit").textContent = r ? "Update restaurant" : "Create restaurant";
+    }
+
+    $("restaurant-select").addEventListener("change", async e => {
+      restaurantId = e.target.value ? Number(e.target.value) : null;
+      try {
+        fillForm(restaurantId ? await api("GET", "/restaurants/" + restaurantId) : null);
+        $("error").textContent = "";
+        $("success").textContent = "";
+      } catch (err) { showError(err.message); }
+    });
+
+    $("restaurant-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const body = {
+        name: $("r-name").value.trim(),
+        cuisine: $("r-cuisine").value.trim(),
+        rating: Number($("r-rating").value),
+        delivery_time_minutes: Number($("r-time").value),
+        delivery_fee: Number($("r-fee").value),
+        address: $("r-address").value.trim(),
+        is_open: $("r-open").checked,
+      };
+      try {
+        const saved = restaurantId
+          ? await api("PUT", "/restaurants/" + restaurantId, body)
+          : await api("POST", "/restaurants", body);
+        restaurantId = saved.id;
+        await loadDropdown(saved.id);
+        showSuccess('Saved "' + saved.name + '" (id ' + saved.id + ").");
+      } catch (err) { showError(err.message); }
+    });
+
+    loadDropdown().catch(err => showError("Could not load restaurants: " + err.message));
+  </script>
+</body>
+</html>
