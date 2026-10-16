@@ -5,7 +5,7 @@
 - **Sprint / Milestone:** Milestone 1 – First Vertical Slice
 - **Sprint dates:** [2026-09-29 to 2026-10-16]
 - **Planning meeting date:** [2026-09-28]
-- **Facilitator:** [Domenica]
+- **Facilitator:** [Domenica Vizcaino]
 
 ### Team Members
 
@@ -109,6 +109,7 @@ The team will also ensure that the implementation is properly documented, tested
 
 ### Anjana – Backend: Restaurants
 
+- [ ] Verify `docs/PROVENANCE.md` updates.
 - [ ] Implement restaurant backend functionality.
 - [ ] Create Restaurant Pydantic models.
 - [ ] Implement restaurant routes.
@@ -136,7 +137,7 @@ The team will also ensure that the implementation is properly documented, tested
 
 ### Doménica – Frontend, Testing, Scrum Notes, and Submission
 
-- [ ] Assist with frontend implementation and API integration.
+- [ ] Implement the basic frontend for the vertical slice.
 - [ ] Verify the complete customer workflow: **Restaurant List → Search/Filter → Restaurant Details → Menu → Menu Items**.
 - [ ] Add/coordinate automated tests for the required functionality.
 - [ ] Verify the health endpoint test.
@@ -147,7 +148,6 @@ The team will also ensure that the implementation is properly documented, tested
 - [ ] Configure or verify GitHub Actions CI and ensure pytest runs successfully.
 - [ ] Maintain Sprint/Scrum meeting notes.
 - [ ] Verify README updates.
-- [ ] Verify `docs/PROVENANCE.md` updates.
 - [ ] Verify required GitHub issues, acceptance criteria, branches, Pull Requests, and reviews are present.
 - [ ] Coordinate final integration and testing before submission.
 - [ ] Collect team contribution percentages.
@@ -222,10 +222,10 @@ Before ending the meeting, each team member should confirm their understanding o
 
 | Team Member | Initial Responsibilities | Confirmed |
 |---|---|---|
-| Nandini Anaparti | Backend – Menu and Menu Items | [ ] |
-| Anjana Ratnala | Backend – Restaurants | [ ] |
-| Ayah Hamdona | Frontend | [ ] |
-| Doménica Vizcaino Andrade | Frontend, Testing, Scrum Notes, Integration, and Submission | [ ] |
+| Nandini Anaparti | Backend – Menu and Menu Items | [x] |
+| Anjana Ratnala | Backend – Restaurants | [x] |
+| Ayah Hamdona | Frontend | [x] |
+| Doménica Vizcaino Andrade | Frontend, Testing, Scrum Notes, Integration, and Submission | [x] |
 
 ---
 
