@@ -35,7 +35,7 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: Implement the restaurant data layer (configurable data path, `Restaurant` Pydantic model, JSON repository).
 - Influence: Used the generated implementation.
-- Validation: Ran the full pytest suite locally, including the existing repository tests, and confirmed all tests passed before opening the PR.
+- Validation: Ran the full pytest suite locally, including the existing repository tests, and confirmed all tests passed before opening the PR. Reviewed the code and explained it to the TA during the M0 lab demo.
 - PR: #1 (restored by #9)
 
 #### Entry A2
@@ -45,7 +45,7 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: Implement the restaurant service and routes (`GET /restaurants`, `GET /restaurants/{id}` with 404 handling) and tests for the by-id endpoint.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally, including tests that an unknown restaurant id returns 404, and confirmed all tests passed before opening the PR.
+- Validation: Ran the full pytest suite locally, including tests that an unknown restaurant id returns 404, and confirmed all tests passed before opening the PR. Reviewed the code and explained it to the TA during the M0 lab demo.
 - PR: #2
 
 #### Entry A3
@@ -67,7 +67,7 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: Implement restaurant search and filter on `GET /restaurants` (name, cuisine, is_open, min_rating) and its tests.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally (35 passing), including tests for each filter, combined filters, no matches, and an invalid `min_rating` returning 422.
+- Validation: Ran the full pytest suite locally (35 passing), including tests for each filter, combined filters, no matches, and an invalid `min_rating` returning 422. Manually tested the filters through the FastAPI `/docs` page in the running app, and reviewed the implementation by walking through the code and explaining how each layer works.
 - PR: #15
 
 #### Entry A5
@@ -77,5 +77,5 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: Implement creating (`POST /restaurants`) and updating (`PUT /restaurants/{id}`) restaurants with JSON persistence, request models, documented 404 error responses, tests, and README endpoint updates.
 - Influence: Used the generated implementation, tests and documentation.
-- Validation: Ran the full pytest suite locally (46 passing), including tests that new and updated restaurants are saved to the data file, that missing restaurants return 404, that invalid input returns 422, and that the 404 responses appear in the OpenAPI docs. All tests use temporary data files, so the committed `data/restaurants.json` is not modified.
+- Validation: Ran the full pytest suite locally (46 passing), including tests that new and updated restaurants are saved to the data file, that missing restaurants return 404, that invalid input returns 422, and that the 404 responses appear in the OpenAPI docs. All tests use temporary data files, so the committed `data/restaurants.json` is not modified. Manually tested creating a restaurant, updating one, and requesting a missing id (404) through the FastAPI `/docs` page, and reviewed the implementation by walking through the code and explaining how each layer works.
 - PR: #16
