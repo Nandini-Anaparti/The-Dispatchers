@@ -1,6 +1,6 @@
 """Route layer: HTTP concerns only (paths, status codes, response models)."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.core.config import get_restaurants_data_path
 from app.repositories.restaurant_repository import RestaurantRepository
@@ -21,9 +21,19 @@ def get_restaurant_service() -> RestaurantService:
 
 
 @router.get("", response_model=list[Restaurant])
-def list_restaurants(service: RestaurantService = Depends(get_restaurant_service)):
-    """Return all restaurants."""
-    return service.list_restaurants()
+def list_restaurants(
+    name: str | None = Query(None, description="Part of the restaurant name (case-insensitive)"),
+    cuisine: str | None = Query(None, description="Exact cuisine, e.g. Italian (case-insensitive)"),
+    is_open: bool | None = Query(None, description="true = only open, false = only closed"),
+    min_rating: float | None = Query(None, ge=0, le=5, description="Minimum rating from 0 to 5"),
+    service: RestaurantService = Depends(get_restaurant_service),
+):
+    """Return all restaurants, or only the ones matching the optional filters.
+
+    With no query parameters this returns every restaurant.
+    A min_rating outside 0 to 5 returns 422.
+    """
+    return service.list_restaurants(name=name, cuisine=cuisine, is_open=is_open, min_rating=min_rating)
 
 
 @router.get("/{restaurant_id}", response_model=Restaurant)
