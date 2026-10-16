@@ -91,3 +91,12 @@ def test_repository_update_unknown_id_returns_none(temp_data_file):
     repo = RestaurantRepository(temp_data_file)
     ghost = Restaurant(id=999, **{**NEW_RESTAURANT, "rating": 4.0, "is_open": True})
     assert repo.update(ghost) is None
+
+
+# ---- API documentation ----
+
+def test_openapi_documents_restaurant_404s(client):
+    paths = client.get("/openapi.json").json()["paths"]
+    assert "404" in paths["/restaurants/{restaurant_id}"]["get"]["responses"]
+    assert "404" in paths["/restaurants/{restaurant_id}"]["put"]["responses"]
+    assert "201" in paths["/restaurants"]["post"]["responses"]
