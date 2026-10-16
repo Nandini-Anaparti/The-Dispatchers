@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "restaurant_id": 1,
+    "name": "Margherita Pizza",
+    "description": "Pizza with tomato sauce and mozzarella",
+    "price": 14.99,
+    "is_available": true
+  },
+  {
+    "id": 2,
+    "restaurant_id": 1,
+    "name": "Garlic Bread",
+    "description": "Bread with garlic butter",
+    "price": 6.99,
+    "is_available": true
+  },
+  {
+    "id": 3,
+    "restaurant_id": 2,
+    "name": "California Roll",
+    "description": "Sushi roll with crab and avocado",
+    "price": 10.99,
+    "is_available": true
+  }
+]
