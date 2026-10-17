@@ -74,14 +74,50 @@ docker compose up --build
 
 The API runs at http://localhost:8000. Stop it with `Ctrl+C`, then `docker compose down`.
 
+## Frontend — Milestone 1
+
+The application includes a basic restaurant-browsing frontend built with
+HTML, CSS, and JavaScript.
+
+Start the application:
+
+```bash
+python -m uvicorn app.main:app --reload
+
+Note: now instead of starting the application and returning a message saying the application is running, the webpage will load.
+
+Open http://127.0.0.1:8000/ in your browser.
+
+The frontend supports:
+
+- Viewing restaurants retrieved from the REST API.
+- Searching restaurants by name and filtering by cuisine.
+- Viewing a selected restaurant's details.
+- Viewing its menu items, prices, and availability.
+- Loading, empty-result, and error messages.
+
+Search and cuisine filtering currently run in the browser using restaurant data retrieved from the API.
+
+Frontend files are located in `frontend/`: `index.html`, `styles.css`, and `browsing.js`.
+
+`GET /` now serves the frontend page instead of the original JSON welcome message. API documentation remains available at `/docs`.
+
+Tests in `tests/test_frontend.py` verify that the page and static assets are served correctly and missing assets return 404. These tests do not execute browser interactions.
+
 ## API Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health check. Returns `200` and `{"status": "ok"}` |
-| GET | `/restaurants` | Returns the list of all restaurants |
+| GET | `/restaurants` | Returns all restaurants. Optional filters: `name` (partial, case-insensitive), `cuisine`, `is_open`, `min_rating` (0 to 5, otherwise `422`) |
 | GET | `/restaurants/{restaurant_id}` | Returns one restaurant, or `404` if the id does not exist |
+| POST | `/restaurants` | Creates a restaurant (server assigns the id). Returns `201`, or `422` if the body is invalid |
+| PUT | `/restaurants/{restaurant_id}` | Updates only the fields sent. Returns `404` if the id does not exist, or `422` if a field is invalid |
 | GET | `/docs` | Interactive OpenAPI (Swagger) documentation |
+
+Example filter: `/restaurants?cuisine=italian&is_open=true` returns open Italian restaurants.
+
+Restaurant menu item endpoints are under `/restaurants/{restaurant_id}/menu-items`. See `/docs` for the full list.
 
 No API prefix is used. For example, the restaurant list is at http://127.0.0.1:8000/restaurants and the docs are at http://127.0.0.1:8000/docs.
 
