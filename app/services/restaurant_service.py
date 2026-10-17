@@ -5,7 +5,7 @@ touches files directly and never deals with HTTP details.
 """
 
 from app.repositories.restaurant_repository import RestaurantRepository
-from app.schemas.restaurant import Restaurant
+from app.schemas.restaurant import Restaurant, RestaurantCreate, RestaurantUpdate
 
 
 class RestaurantNotFoundError(Exception):
@@ -16,11 +16,52 @@ class RestaurantService:
     def __init__(self, repository: RestaurantRepository):
         self.repository = repository
 
-    def list_restaurants(self) -> list[Restaurant]:
-        return self.repository.get_all()
+    def list_restaurants(
+        self,
+        name: str | None = None,
+        cuisine: str | None = None,
+        is_open: bool | None = None,
+        min_rating: float | None = None,
+    ) -> list[Restaurant]:
+        """Return restaurants, optionally narrowed down by filters.
+
+        Every filter is optional. A restaurant is kept only if it passes all
+        the filters that were given.
+        - name: case-insensitive partial match ("piz" matches "La Vela Pizzeria")
+        - cuisine: case-insensitive exact match ("italian" matches "Italian")
+        - is_open: only open (True) or only closed (False) restaurants
+        - min_rating: only restaurants rated at least this high
+        """
+        results = []
+        for restaurant in self.repository.get_all():
+            if name is not None and name.lower() not in restaurant.name.lower():
+                continue
+            if cuisine is not None and cuisine.lower() != restaurant.cuisine.lower():
+                continue
+            if is_open is not None and restaurant.is_open != is_open:
+                continue
+            if min_rating is not None and restaurant.rating < min_rating:
+                continue
+            results.append(restaurant)
+        return results
 
     def get_restaurant(self, restaurant_id: int) -> Restaurant:
         restaurant = self.repository.get_by_id(restaurant_id)
         if restaurant is None:
             raise RestaurantNotFoundError(f"Restaurant {restaurant_id} not found")
         return restaurant
+
+    def create_restaurant(self, data: RestaurantCreate) -> Restaurant:
+        """Create a restaurant with the next free id (highest id + 1)."""
+        existing = self.repository.get_all()
+        next_id = max((r.id for r in existing), default=0) + 1
+        restaurant = Restaurant(id=next_id, **data.model_dump())
+        return self.repository.add(restaurant)
+
+    def update_restaurant(self, restaurant_id: int, changes: RestaurantUpdate) -> Restaurant:
+        """Apply only the fields that were sent, keep everything else the same."""
+        current = self.get_restaurant(restaurant_id)  # raises RestaurantNotFoundError
+        updated = current.model_copy(update=changes.model_dump(exclude_unset=True))
+        # Re-validate so the merged result still follows the Restaurant rules.
+        updated = Restaurant(**updated.model_dump())
+        return self.repository.update(updated)
