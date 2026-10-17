@@ -65,3 +65,8 @@ def test_no_matches_returns_empty_list(client, filter_data):
 def test_invalid_min_rating_returns_422(client, filter_data):
     response = client.get("/restaurants", params={"min_rating": 9})
     assert response.status_code == 422
+
+
+def test_negative_min_rating_returns_422(client, filter_data):
+    response = client.get("/restaurants", params={"min_rating": -1})
+    assert response.status_code == 422
