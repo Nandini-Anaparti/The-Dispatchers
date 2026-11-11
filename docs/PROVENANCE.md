@@ -127,3 +127,19 @@ Copy this block for each new entry.
 - Influence: Used AI for guidance on how to combine multiple filters and make sure only the matching menu items were returned. I also used it to help figure out why the update function wasn't working properly and how to fix it.
 - Validation: Went through the code myself to make sure I understood how the filtering worked, and ran the tests to check that filtering by name, price, and availability returned the expected results. I also tested the update function to make sure changes were being saved correctly to the JSON file.
 - PR: #14
+
+---
+
+## Domenica Vizcaino Andrade
+
+### Milestone 2 (Integrated Core System)
+
+#### Entry D1
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: `docs/M2_BUSINESS_RULES.md`
+- Label: AI-REVISED
+- AI tool: ChatGPT
+- Purpose: Help check the cross-subsystem business-rule plan against the Milestone 2 instructions to make sure everything is covered.
+- Influence: After writing the business rules, the LLM helped revise the business rules md file in this project based on the instructions of milestone 2.
+- Validation: The initial draft was compared against the supplied M2 instructions and current restaurant/menu code (the only one we have implemented at the moment). Customer/cart/order interfaces still require team agreement and check since they are still being implemented.
+- PR: Not opened.
