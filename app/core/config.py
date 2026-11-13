@@ -13,6 +13,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_RESTAURANTS_PATH = PROJECT_ROOT / "data" / "restaurants.json"
 DEFAULT_MENU_ITEMS_PATH = PROJECT_ROOT / "data" / "menu_items.json"
+DEFAULT_USERS_PATH = PROJECT_ROOT / "data" / "users.json"
 
 def get_restaurants_data_path() -> Path:
     """Return the path to the restaurant data file.
@@ -24,3 +25,6 @@ def get_restaurants_data_path() -> Path:
 
 def get_menu_items_data_path():
     return Path(os.getenv("MENU_ITEMS_DATA_PATH", str(DEFAULT_MENU_ITEMS_PATH)))
+
+def get_users_data_path() -> Path:
+    return Path(os.getenv("USERS_DATA_PATH", str(DEFAULT_USERS_PATH)))

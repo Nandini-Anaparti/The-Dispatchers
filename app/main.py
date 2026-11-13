@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.api.routes.restaurants import router as restaurants_router
 from app.api.routes.menu_items import router as menu_items_router
+from app.api.routes.customers import router as customers_router
 
 from pathlib import Path
 
@@ -23,6 +24,7 @@ app.mount(
 
 app.include_router(restaurants_router)
 app.include_router(menu_items_router)
+app.include_router(customers_router)
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 def root():
