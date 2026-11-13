@@ -4,7 +4,7 @@ const pages = [
     { name: "Restaurants", url: "/", ready: true },
     { name: "Manage Restaurants", url: "/frontend/manage.html", ready: true },
     { name: "Login", url: "/frontend/login.html", ready: false },
-    { name: "Register", url: "/frontend/register.html", ready: false },
+    { name: "Register", url: "/frontend/register.html", ready: true },
     { name: "My Account", url: "/frontend/account.html", ready: false },
     { name: "Cart", url: "/frontend/cart.html", ready: false },
     { name: "Checkout", url: "/frontend/checkout.html", ready: false },

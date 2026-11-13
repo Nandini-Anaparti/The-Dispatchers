@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register | The Dispatchers</title>
+
+    <link rel="stylesheet" href="/frontend/styles.css">
+    <script src="/frontend/navbar.js" defer></script>
+    <script src="/frontend/register.js" defer></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">The Dispatchers</a>
+        <span>Create an account</span>
+    </header>
+    <nav id="site-nav" aria-label="Main navigation"></nav>
+
+    <main>
+        <a href="/">&larr; Back to restaurants</a>
+        <h1>Create an Account</h1>
+        <p>Register to start ordering food.</p>
+
+        <form id="register-form"
+              class="search-controls"
+              style="flex-direction: column; align-items: stretch; max-width: 480px;">
+            <div>
+                <label for="name">Name</label>
+                <input id="name" type="text" required>
+            </div>
+
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" required>
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input id="password" type="password" minlength="8" required>
+            </div>
+
+            <div>
+                <label for="address">Delivery Address (optional)</label>
+                <input id="address" type="text">
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p id="registration-success" role="status"></p>
+        <p id="registration-error" class="error" role="alert"></p>
+    </main>
+</body>
+</html>
