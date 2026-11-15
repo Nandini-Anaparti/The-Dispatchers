@@ -26,3 +26,14 @@ def require_restaurant_access(
         status_code=403,
         detail="You do not have permission to manage this restaurant"
     )
+
+def require_restaurant_creator(
+    current_user: UserInDB = Depends(get_current_user)
+):
+    if current_user.role not in ("restaurant owner", "admin"):
+        raise HTTPException(
+            status_code=403,
+            detail="Only restaurant owners and admins can create restaurants"
+        )
+
+    return current_user

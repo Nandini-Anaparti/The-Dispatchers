@@ -252,16 +252,46 @@ def test_owner_cannot_manage_other_restaurant(role_client):
     assert restaurants_path.read_text() == original_restaurants
     assert menu_path.read_text() == original_menu
 
-def test_owner_cannot_create_restaurant(role_client):
-    client, _, _, _ = role_client
+def test_owner_can_create_restaurant(role_client):
+    client, users_path, _, _ = role_client
+
+    headers = auth_headers(2)
 
     response = client.post(
         "/restaurants",
         json=NEW_RESTAURANT,
-        headers=auth_headers(2)
+        headers=headers
     )
 
-    assert response.status_code == 403
+    assert response.status_code == 201
+
+    new_restaurant = response.json()
+    restaurant_id = new_restaurant["id"]
+
+    assert new_restaurant["name"] == "Test Tacos"
+
+    users = json.loads(users_path.read_text())
+
+    owner = next(user for user in users if user["id"] == 2)
+
+    assert restaurant_id in owner["restaurant_ids"]
+
+    response = client.put(
+        f"/restaurants/{restaurant_id}",
+        json={"name": "Updated Tacos"},
+        headers=headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()["name"] == "Updated Tacos"
+
+    response = client.post(
+        f"/restaurants/{restaurant_id}/menu-items",
+        json=NEW_MENU_ITEM,
+        headers=headers
+    )
+
+    assert response.status_code == 201
 
 def test_admin_can_manage_restaurants(role_client):
     client, _, _, _ = role_client
