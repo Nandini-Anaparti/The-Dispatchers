@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-
 from app.core.config import get_users_data_path
 from app.repositories.user_repository import UserRepository
 from app.schemas.user import CustomerRegister, User

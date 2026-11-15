@@ -1,5 +1,5 @@
 from argon2 import PasswordHasher
-
+from argon2.exceptions import VerificationError, InvalidHashError
 from app.schemas.user import CustomerRegister, User, UserInDB
 from app.repositories.user_repository import UserRepository
 
@@ -40,3 +40,20 @@ class UserService:
             is_active=new_user.is_active,
             delivery_address=new_user.delivery_address
         )
+    
+    def authenticate_user(self, email: str, password: str) -> UserInDB | None:
+
+        user = self.repository.get_by_email(email)
+
+        if user is None or not user.is_active:
+            return None
+
+        try:
+            self.password_hasher.verify(
+                user.password_hash,
+                password
+            )
+        except (VerificationError, InvalidHashError):
+            return None
+
+        return user

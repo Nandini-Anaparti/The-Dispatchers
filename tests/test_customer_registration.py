@@ -1,9 +1,7 @@
 import json
 import pytest
-
 from fastapi.testclient import TestClient
 from argon2 import PasswordHasher
-
 from app.repositories.user_repository import UserRepository
 
 def test_registration_page(registration_client):
