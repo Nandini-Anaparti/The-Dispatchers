@@ -40,7 +40,7 @@ form.addEventListener("submit", async (event) => {
         }
 
         successMessage.textContent =
-            "Account created successfully. You can sign in once login is available.";
+            "Account created successfully. You can log in now.";
 
         form.reset();
 

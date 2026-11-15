@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login | The Dispatchers</title>
+
+    <link rel="stylesheet" href="/frontend/styles.css">
+    <script src="/frontend/navbar.js" defer></script>
+    <script src="/frontend/login.js" defer></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">The Dispatchers</a>
+        <span>Login to your account</span>
+    </header>
+    <nav id="site-nav" aria-label="Main navigation"></nav>
+
+    <main>
+        <a href="/">&larr; Back to restaurants</a>
+
+        <h1>Login</h1>
+        <p>Enter your email and password to sign in.</p>
+
+        <form id="login-form"
+              class="search-controls"
+              style="flex-direction: column; align-items: stretch; max-width: 480px;">
+
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" autocomplete="email" required>
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input id="password" type="password" autocomplete="current-password" required>
+            </div>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p id="login-error" class="error" role="alert"></p>
+
+        <p>
+            Don't have an account?
+            <a href="/frontend/register.html">Register here</a>
+        </p>
+    </main>
+</body>
+</html>
