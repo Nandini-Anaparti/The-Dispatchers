@@ -47,6 +47,20 @@ def list_restaurants(
     """
     return service.list_restaurants(name=name, cuisine=cuisine, is_open=is_open, min_rating=min_rating)
 
+@router.get("/mine", response_model=list[Restaurant])
+def get_my_restaurants(
+    current_user: UserInDB = Depends(require_restaurant_creator),
+    service: RestaurantService = Depends(get_restaurant_service)
+):
+    restaurants = service.list_restaurants()
+
+    if current_user.role == "admin":
+        return restaurants
+
+    return [
+        restaurant for restaurant in restaurants
+        if restaurant.id in current_user.restaurant_ids
+    ]
 
 @router.get(
     "/{restaurant_id}",

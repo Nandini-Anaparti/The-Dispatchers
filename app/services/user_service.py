@@ -1,6 +1,13 @@
+from typing import Literal
 from argon2 import PasswordHasher
 from argon2.exceptions import VerificationError, InvalidHashError
-from app.schemas.user import CustomerRegister, User, UserInDB
+from app.schemas.user import (
+    AccountRegister,
+    CustomerRegister,
+    RestaurantOwnerRegister,
+    User,
+    UserInDB
+)
 from app.repositories.user_repository import UserRepository
 
 class EmailAlreadyRegisteredError(Exception):
@@ -12,6 +19,17 @@ class UserService:
         self.password_hasher = PasswordHasher()
 
     def register_customer(self, data: CustomerRegister) -> User:
+        return self._register_user(data, "customer", data.delivery_address)
+
+    def register_restaurant_owner(self, data: RestaurantOwnerRegister) -> User:
+        return self._register_user(data, "restaurant owner")
+
+    def _register_user(
+        self,
+        data: AccountRegister,
+        role: Literal["customer", "restaurant owner"],
+        delivery_address: str | None = None
+    ) -> User:
         email = str(data.email).lower()
 
         if self.repository.get_by_email(email) is not None:
@@ -25,9 +43,10 @@ class UserService:
             name=data.name,
             email=email,
             password_hash=self.password_hasher.hash(data.password),
-            role="customer",
+            role=role,
             is_active=True,
-            delivery_address=data.delivery_address
+            delivery_address=delivery_address,
+            restaurant_ids=[]
         )
 
         self.repository.add(new_user)
@@ -40,7 +59,7 @@ class UserService:
             is_active=new_user.is_active,
             delivery_address=new_user.delivery_address
         )
-    
+
     def authenticate_user(self, email: str, password: str) -> UserInDB | None:
 
         user = self.repository.get_by_email(email)

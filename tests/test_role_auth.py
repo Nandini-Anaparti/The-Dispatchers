@@ -156,6 +156,8 @@ def test_unauthenticated_requests(role_client):
         json=NEW_MENU_ITEM
     ).status_code == 401
 
+    assert client.get("/restaurants/mine").status_code == 401
+
 def test_customer_cannot_manage_restaurants(role_client):
     client, _, restaurants_path, menu_path = role_client
 
@@ -185,6 +187,11 @@ def test_customer_cannot_manage_restaurants(role_client):
     assert client.put(
         "/restaurants/1/menu-items/1",
         json=NEW_MENU_ITEM,
+        headers=headers
+    ).status_code == 403
+
+    assert client.get(
+        "/restaurants/mine",
         headers=headers
     ).status_code == 403
 
@@ -276,6 +283,14 @@ def test_owner_can_create_restaurant(role_client):
 
     assert restaurant_id in owner["restaurant_ids"]
 
+    response = client.get(
+        "/restaurants/mine",
+        headers=headers
+    )
+
+    assert response.status_code == 200
+    assert [r["id"] for r in response.json()] == [1, restaurant_id]
+
     response = client.put(
         f"/restaurants/{restaurant_id}",
         json={"name": "Updated Tacos"},
@@ -306,6 +321,18 @@ def test_admin_can_manage_restaurants(role_client):
 
     assert response.status_code == 201
     assert response.json()["name"] == "Test Tacos"
+    
+    new_restaurant_id = response.json()["id"]
+
+    response = client.get(
+        "/restaurants/mine",
+        headers=headers
+    )
+
+    assert response.status_code == 200
+    assert [r["id"] for r in response.json()] == [
+        1, 2, new_restaurant_id
+    ]
 
     response = client.put(
         "/restaurants/2",
