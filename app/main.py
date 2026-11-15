@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from app.api.routes.restaurants import router as restaurants_router
 from app.api.routes.menu_items import router as menu_items_router
 from app.api.routes.customers import router as customers_router
+from app.api.routes.auth import router as auth_router
 
 from pathlib import Path
 
