@@ -2,7 +2,6 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
-
 @pytest.fixture
 def sample_restaurants():
     return [
@@ -14,13 +13,11 @@ def sample_restaurants():
          "address": "2 Test St", "is_open": True},
     ]
 
-
 @pytest.fixture
 def temp_data_file(tmp_path, sample_restaurants):
     path = tmp_path / "restaurants.json"
     path.write_text(json.dumps(sample_restaurants), encoding="utf-8")
     return path
-
 
 @pytest.fixture
 def client(temp_data_file, monkeypatch):
@@ -30,3 +27,36 @@ def client(temp_data_file, monkeypatch):
     from app.main import app
     with TestClient(app) as test_client:
         yield test_client
+
+@pytest.fixture
+def admin_client(client, tmp_path, monkeypatch):
+    from argon2 import PasswordHasher
+    from app.core.auth import create_access_token
+
+    users_path = tmp_path / "users.json"
+
+    admin = {
+        "id": 900,
+        "name": "Test Admin",
+        "email": "testadmin@example.com",
+        "role": "admin",
+        "is_active": True,
+        "password_hash": PasswordHasher().hash("test-password-123")
+    }
+
+    users_path.write_text(
+        json.dumps([admin]),
+        encoding="utf-8"
+    )
+
+    monkeypatch.setenv("USERS_DATA_PATH", str(users_path))
+    monkeypatch.setenv(
+        "AUTH_SECRET_KEY",
+        "test-only-secret-for-authorization-tests-123456"
+    )
+
+    token = create_access_token(900)
+
+    client.headers["Authorization"] = f"Bearer {token}"
+
+    return client

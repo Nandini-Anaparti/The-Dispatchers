@@ -1,11 +1,6 @@
 import json
 
-from fastapi.testclient import TestClient
-from app.main import app
-
-client = TestClient(app)
-
-def test_get_menu_items(tmp_path, monkeypatch):
+def test_get_menu_items(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
 
     items = [
@@ -22,13 +17,13 @@ def test_get_menu_items(tmp_path, monkeypatch):
     file_path.write_text(json.dumps(items))
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
 
-    response = client.get("/restaurants/1/menu-items")
+    response = admin_client.get("/restaurants/1/menu-items")
 
     assert response.status_code == 200
     assert len(response.json()) == 1
     assert response.json()[0]["name"] == "Pizza"
 
-def test_get_menu_item(tmp_path, monkeypatch):
+def test_get_menu_item(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
 
     items = [
@@ -45,21 +40,21 @@ def test_get_menu_item(tmp_path, monkeypatch):
     file_path.write_text(json.dumps(items))
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
 
-    response = client.get("/restaurants/1/menu-items/1")
+    response = admin_client.get("/restaurants/1/menu-items/1")
 
     assert response.status_code == 200
     assert response.json()["id"] == 1
 
-def test_menu_item_not_found(tmp_path, monkeypatch):
+def test_menu_item_not_found(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
     file_path.write_text("[]")
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
 
-    response = client.get("/restaurants/1/menu-items/999")
+    response = admin_client.get("/restaurants/1/menu-items/999")
 
     assert response.status_code == 404
 
-def test_menu_item_wrong_restaurant(tmp_path, monkeypatch):
+def test_menu_item_wrong_restaurant(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
 
     items = [
@@ -76,12 +71,12 @@ def test_menu_item_wrong_restaurant(tmp_path, monkeypatch):
     file_path.write_text(json.dumps(items))
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
 
-    response = client.get("/restaurants/1/menu-items/1")
+    response = admin_client.get("/restaurants/1/menu-items/1")
 
     assert response.status_code == 404
 
     
-def test_add_menu_item(tmp_path, monkeypatch):
+def test_add_menu_item(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
     file_path.write_text("[]")
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
@@ -93,7 +88,7 @@ def test_add_menu_item(tmp_path, monkeypatch):
         "is_available": True
     }
 
-    response = client.post("/restaurants/1/menu-items", json=new_item)
+    response = admin_client.post("/restaurants/1/menu-items", json=new_item)
 
     assert response.status_code == 201
     assert response.json()["name"] == "Pasta"
@@ -103,7 +98,7 @@ def test_add_menu_item(tmp_path, monkeypatch):
     assert len(saved_items) == 1
 
 
-def test_update_menu_item(tmp_path, monkeypatch):
+def test_update_menu_item(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
 
     items = [
@@ -127,7 +122,7 @@ def test_update_menu_item(tmp_path, monkeypatch):
         "is_available": False
     }
 
-    response = client.put(
+    response = admin_client.put(
         "/restaurants/1/menu-items/1",
         json=updated_item
     )
@@ -140,7 +135,7 @@ def test_update_menu_item(tmp_path, monkeypatch):
     assert saved_items[0]["name"] == "Pepperoni Pizza"
 
 
-def test_update_missing_item(tmp_path, monkeypatch):
+def test_update_missing_item(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
     file_path.write_text("[]")
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
@@ -152,14 +147,14 @@ def test_update_missing_item(tmp_path, monkeypatch):
         "is_available": True
     }
 
-    response = client.put(
+    response = admin_client.put(
         "/restaurants/1/menu-items/999",
         json=updated_item
     )
 
     assert response.status_code == 404
 
-def test_add_invalid_price(tmp_path, monkeypatch):
+def test_add_invalid_price(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
     file_path.write_text("[]")
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
@@ -171,12 +166,12 @@ def test_add_invalid_price(tmp_path, monkeypatch):
         "is_available": True
     }
 
-    response = client.post("/restaurants/1/menu-items", json=new_item)
+    response = admin_client.post("/restaurants/1/menu-items", json=new_item)
 
     assert response.status_code == 422
 
 
-def test_filter_by_price(tmp_path, monkeypatch):
+def test_filter_by_price(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
 
     items = [
@@ -201,14 +196,14 @@ def test_filter_by_price(tmp_path, monkeypatch):
     file_path.write_text(json.dumps(items))
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
 
-    response = client.get("/restaurants/1/menu-items?max_price=10")
+    response = admin_client.get("/restaurants/1/menu-items?max_price=10")
 
     assert response.status_code == 200
     assert len(response.json()) == 1
     assert response.json()[0]["name"] == "Garlic Bread"
 
 
-def test_filter_by_availability(tmp_path, monkeypatch):
+def test_filter_by_availability(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
 
     items = [
@@ -233,13 +228,13 @@ def test_filter_by_availability(tmp_path, monkeypatch):
     file_path.write_text(json.dumps(items))
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
 
-    response = client.get("/restaurants/1/menu-items?is_available=true")
+    response = admin_client.get("/restaurants/1/menu-items?is_available=true")
 
     assert response.status_code == 200
     assert len(response.json()) == 1
     assert response.json()[0]["name"] == "Pizza"
 
-def test_filter_by_name(tmp_path, monkeypatch):
+def test_filter_by_name(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
 
     items = [
@@ -264,7 +259,7 @@ def test_filter_by_name(tmp_path, monkeypatch):
     file_path.write_text(json.dumps(items))
     monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
 
-    response = client.get("/restaurants/1/menu-items?name=PIZZA")
+    response = admin_client.get("/restaurants/1/menu-items?name=PIZZA")
 
     assert response.status_code == 200
     assert len(response.json()) == 1

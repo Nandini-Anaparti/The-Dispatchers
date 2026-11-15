@@ -1,11 +1,12 @@
 """Route layer: HTTP concerns only (paths, status codes, response models)."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-
 from app.core.config import get_restaurants_data_path
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.restaurant import Restaurant, RestaurantCreate, RestaurantUpdate
 from app.services.restaurant_service import RestaurantNotFoundError, RestaurantService
+from app.core.permissions import require_admin, require_restaurant_access
+from app.schemas.user import UserInDB
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 
@@ -60,7 +61,11 @@ def get_restaurant(restaurant_id: int, service: RestaurantService = Depends(get_
 
 
 @router.post("", response_model=Restaurant, status_code=201, summary="Create a restaurant")
-def create_restaurant(data: RestaurantCreate, service: RestaurantService = Depends(get_restaurant_service)):
+def create_restaurant(
+    data: RestaurantCreate,
+    current_user: UserInDB = Depends(require_admin),
+    service: RestaurantService = Depends(get_restaurant_service)
+):
     """Create a new restaurant. The server assigns the id.
 
     Returns 201 with the created restaurant, or 422 if the body is invalid.
@@ -77,6 +82,7 @@ def create_restaurant(data: RestaurantCreate, service: RestaurantService = Depen
 def update_restaurant(
     restaurant_id: int,
     changes: RestaurantUpdate,
+    current_user: UserInDB = Depends(require_restaurant_access),
     service: RestaurantService = Depends(get_restaurant_service),
 ):
     """Update a restaurant. Only the fields you send are changed.
