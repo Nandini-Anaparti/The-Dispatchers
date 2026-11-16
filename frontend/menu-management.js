@@ -63,7 +63,15 @@ async function api(method, path, body) {
 function resetForm() {
     menuItemId = null;
     $("menu-item-form").reset();
+
+    $("item-name").disabled = false;
+    $("item-description").disabled = false;
+    $("item-price").disabled = false;
+    $("item-available").disabled = false;
+
+    $("item-submit").hidden = false;
     $("item-submit").textContent = "Add Menu Item";
+    $("deactivate-item").hidden = true;
 }
 
 function fillForm(item) {
@@ -79,9 +87,18 @@ function fillForm(item) {
     $("item-price").value = item.price;
     $("item-available").checked = item.is_available;
 
-    $("item-submit").textContent = "Update Menu Item";
-}
+    const inactive = !item.is_active;
 
+    $("item-name").disabled = inactive;
+    $("item-description").disabled = inactive;
+    $("item-price").disabled = inactive;
+    $("item-available").disabled = inactive;
+
+    $("item-submit").hidden = inactive;
+    $("item-submit").textContent = "Update Menu Item";
+
+    $("deactivate-item").hidden = inactive;
+}
 function showMenuList() {
     const list = $("menu-list");
     list.replaceChildren();
@@ -89,9 +106,13 @@ function showMenuList() {
     menuItems.forEach(item => {
         const entry = document.createElement("li");
 
-        const status = item.is_available
-            ? "Available"
-            : "Unavailable";
+        let status = "Available";
+
+        if (!item.is_active) {
+            status = "Deactivated";
+        } else if (!item.is_available) {
+            status = "Unavailable";
+        }
 
         entry.textContent =
             item.name + " - $" + item.price.toFixed(2) +
@@ -104,7 +125,7 @@ function showMenuList() {
 async function loadMenuItems(selectedId = null) {
     menuItems = await api(
         "GET",
-        "/restaurants/" + restaurantId + "/menu-items"
+        "/restaurants/" + restaurantId + "/menu-items/manage"
     );
 
     const select = $("menu-item-select");
@@ -207,6 +228,47 @@ $("menu-item-form").addEventListener("submit", async event => {
         await loadMenuItems(saved.id);
 
         showSuccess('Saved "' + saved.name + '".');
+
+    } catch (error) {
+        showError(error.message);
+    }
+});
+
+$("deactivate-item").addEventListener("click", async () => {
+    if (!restaurantId || !menuItemId) {
+        return;
+    }
+
+    const item = menuItems.find(
+        item => item.id === menuItemId
+    );
+
+    if (!item || !item.is_active) {
+        return;
+    }
+
+    const confirmed = window.confirm(
+        'Deactivate "' + item.name + '"? ' +
+        "Customers will no longer see this item."
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
+    const path =
+        "/restaurants/" + restaurantId +
+        "/menu-items/" + menuItemId +
+        "/deactivate";
+
+    try {
+        await api("PATCH", path);
+
+        await loadMenuItems(item.id);
+
+        showSuccess(
+            '"' + item.name + '" has been deactivated.'
+        );
 
     } catch (error) {
         showError(error.message);

@@ -5,7 +5,15 @@ class MenuItemService:
         self.menu_repository = menu_repository
         self.restaurant_repository = restaurant_repository
 
-    def get_menu_items(self, restaurant_id, name=None, max_price=None, is_available=None):
+    
+    def get_menu_items(
+        self,
+        restaurant_id,
+        name=None,
+        max_price=None,
+        is_available=None,
+        include_inactive=False
+    ):
         restaurant = self.restaurant_repository.get_by_id(restaurant_id)
 
         if restaurant is None:
@@ -15,6 +23,9 @@ class MenuItemService:
         filtered_items = []
 
         for item in items:
+            if not include_inactive and not item.is_active:
+                continue
+
             if name is not None:
                 if name.lower() not in item.name.lower():
                     continue
@@ -39,7 +50,7 @@ class MenuItemService:
 
         item = self.menu_repository.get_by_id(item_id)
 
-        if item is None:
+        if item is None or not item.is_active:
             raise MenuItemNotFoundError()
 
         if item.restaurant_id != restaurant_id:
@@ -76,6 +87,11 @@ class MenuItemService:
         self.get_menu_item(restaurant_id, item_id)
 
         return self.menu_repository.update_item(item_id, updated_item)
+
+    def deactivate_menu_item(self, restaurant_id, item_id):
+        self.get_menu_item(restaurant_id, item_id)
+
+        return self.menu_repository.deactivate_item(item_id)
 
 class MenuItemNotFoundError(Exception):
     pass

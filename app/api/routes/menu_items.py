@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException
-
 from app.schemas.menu_item import MenuItem
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
@@ -56,6 +55,23 @@ def get_menu_items(
             detail="Restaurant not found"
         )
 
+@router.get("/manage", response_model=list[MenuItem])
+def get_managed_menu_items(
+    restaurant_id: int,
+    current_user: UserInDB = Depends(require_restaurant_access),
+    service: MenuItemService = Depends(get_menu_service)
+):
+    try:
+        return service.get_menu_items(
+            restaurant_id,
+            include_inactive=True
+        )
+
+    except RestaurantNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Restaurant not found"
+        )
 
 @router.get("/{item_id}", response_model=MenuItem)
 def get_menu_item(
@@ -100,3 +116,25 @@ def update_menu_item(
         raise HTTPException(status_code=404, detail="Restaurant not found")
     except MenuItemNotFoundError:
         raise HTTPException(status_code=404, detail="Menu item not found")
+
+@router.patch("/{item_id}/deactivate", response_model=MenuItem)
+def deactivate_menu_item(
+    restaurant_id: int,
+    item_id: int,
+    current_user: UserInDB = Depends(require_restaurant_access),
+    service: MenuItemService = Depends(get_menu_service)
+):
+    try:
+        return service.deactivate_menu_item(restaurant_id, item_id)
+
+    except RestaurantNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Restaurant not found"
+        )
+
+    except MenuItemNotFoundError:
+        raise HTTPException(
+            status_code=404,
+            detail="Menu item not found"
+        )

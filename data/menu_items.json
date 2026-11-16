@@ -5,7 +5,8 @@
     "name": "Margherita Pizza",
     "description": "Pizza with tomato sauce and mozzarella",
     "price": 14.99,
-    "is_available": true
+    "is_available": true,
+    "is_active": true
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "name": "Garlic Bread",
     "description": "Bread with garlic butter",
     "price": 6.99,
-    "is_available": true
+    "is_available": true,
+    "is_active": true
   },
   {
     "id": 3,
@@ -21,7 +23,8 @@
     "name": "California Roll",
     "description": "Sushi roll with crab and avocado",
     "price": 10.99,
-    "is_available": true
+    "is_available": true,
+    "is_active": true
   },
   {
     "id": 4,
@@ -29,6 +32,7 @@
     "name": "Veggie Tacos",
     "description": "Vegetarian Tacos",
     "price": 11.99,
-    "is_available": true
+    "is_available": false,
+    "is_active": false
   }
 ]

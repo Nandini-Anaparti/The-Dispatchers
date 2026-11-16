@@ -1,6 +1,5 @@
 from pydantic import BaseModel, Field
 
-
 class MenuItem(BaseModel):
     id: int
     restaurant_id: int
@@ -8,6 +7,7 @@ class MenuItem(BaseModel):
     description: str
     price: float = Field(gt=0)
     is_available: bool
+    is_active: bool = True
 
 class MenuItemCreate(BaseModel):
     name: str
