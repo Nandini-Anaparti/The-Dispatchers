@@ -30,6 +30,15 @@
                 <label for="restaurant-select">Pick a restaurant to edit</label>
                 <select id="restaurant-select"></select>
             </div>
+
+            <p>
+                <a id="manage-menu-link"
+                   href="/frontend/menu-management.html"
+                   hidden>
+                    Manage Menu for This Restaurant
+                </a>
+            </p>
+
         </section>
 
         <section>
@@ -140,10 +149,24 @@
                     : "Create restaurant";
             }
 
+            function updateMenuLink() {
+                const link = $("manage-menu-link");
+
+                link.hidden = !restaurantId;
+
+                if (restaurantId) {
+                    link.href =
+                        "/frontend/menu-management.html?restaurant_id=" +
+                        restaurantId;
+                }
+            }
+
             $("restaurant-select").addEventListener("change", async event => {
                 restaurantId = event.target.value
                     ? Number(event.target.value)
                     : null;
+
+                updateMenuLink();
 
                 try {
                     const restaurant = restaurantId
@@ -178,6 +201,8 @@
                         : await api("POST", "/restaurants", body);
 
                     restaurantId = saved.id;
+
+                    updateMenuLink();
 
                     await loadDropdown(saved.id);
                     fillForm(saved);
@@ -230,10 +255,10 @@
                         return;
                     }
 
+                    await loadDropdown();
+
                     $("access-message").hidden = true;
                     $("manage-content").hidden = false;
-
-                    await loadDropdown();
 
                 } catch (error) {
                     $("access-message").textContent =

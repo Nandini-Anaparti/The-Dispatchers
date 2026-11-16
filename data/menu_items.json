@@ -22,5 +22,13 @@
     "description": "Sushi roll with crab and avocado",
     "price": 10.99,
     "is_available": true
+  },
+  {
+    "id": 4,
+    "restaurant_id": 11,
+    "name": "Veggie Tacos",
+    "description": "Vegetarian Tacos",
+    "price": 11.99,
+    "is_available": true
   }
 ]
