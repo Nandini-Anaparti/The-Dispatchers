@@ -1,220 +1,257 @@
 :root {
-  font-family: Arial, sans-serif;
-  color: #242424;
-  background: #fff8f2;
-  line-height: 1.5;
+    font-family: Arial, sans-serif;
+    color: #242424;
+    background: #fff8f2;
+    line-height: 1.5;
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 body {
-  margin: 0;
+    margin: 0;
 }
 
 .site-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 24px 5%;
-  background: white;
-  border-bottom: 1px solid #e6ddd5;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 5%;
+    background: white;
+    border-bottom: 1px solid #e6ddd5;
 }
 
 .brand {
-  color: #a83e16;
-  font-size: 24px;
-  font-weight: bold;
-  text-decoration: none;
+    color: #a83e16;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: none;
 }
 
 .site-header span,
 footer {
-  color: #62574f;
-  font-size: 14px;
+    color: #62574f;
+    font-size: 14px;
 }
 
 main {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 48px 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 24px;
 }
 
 section {
-  margin-bottom: 40px;
+    margin-bottom: 40px;
 }
 
 h1 {
-  font-size: clamp(28px, 4vw, 42px);
-  line-height: 1.2;
-  margin: 0 0 12px;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.2;
+    margin: 0 0 12px;
 }
 
 h2,
 h3 {
-  line-height: 1.3;
+    line-height: 1.3;
 }
 
 .search-controls {
-  display: flex;
-  align-items: end;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 28px;
+    display: flex;
+    align-items: end;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 28px;
 }
 
-.search-controls > div {
-  flex: 1;
-  min-width: 200px;
-}
+    .search-controls > div {
+        flex: 1;
+        min-width: 200px;
+    }
 
 label {
-  display: block;
-  margin-bottom: 6px;
-  font-weight: bold;
+    display: block;
+    margin-bottom: 6px;
+    font-weight: bold;
 }
 
 input,
 select,
 button {
-  font: inherit;
-  min-height: 48px;
-  border-radius: 10px;
+    font: inherit;
+    min-height: 48px;
+    border-radius: 10px;
 }
 
 input,
 select {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #b8aaa0;
-  background: white;
-  color: #242424;
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #b8aaa0;
+    background: white;
+    color: #242424;
 }
 
 button {
-  padding: 10px 20px;
-  border: 1px solid transparent;
-  background: #a83e16;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
+    padding: 10px 20px;
+    border: 1px solid transparent;
+    background: #a83e16;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-button:hover {
-  background: #853112;
-}
+    button:hover {
+        background: #853112;
+    }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: wait;
-}
+    button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+    }
 
 :focus-visible {
-  outline: 3px solid #1769aa;
-  outline-offset: 4px;
+    outline: 3px solid #1769aa;
+    outline-offset: 4px;
 }
 
 .restaurant-grid,
 .menu-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
 }
 
 .restaurant-card,
 .menu-card,
 .restaurant-info {
-  padding: 24px;
-  background: white;
-  border: 1px solid #e6ddd5;
-  border-radius: 14px;
+    padding: 24px;
+    background: white;
+    border: 1px solid #e6ddd5;
+    border-radius: 14px;
 }
 
 .restaurant-card {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
 }
 
-.restaurant-card h3,
-.menu-card h4 {
-  margin: 0 0 8px;
-  font-size: 20px;
-}
+    .restaurant-card h3,
+    .menu-card h4 {
+        margin: 0 0 8px;
+        font-size: 20px;
+    }
 
-.restaurant-card p,
-.menu-card p {
-  margin: 6px 0;
-}
+    .restaurant-card p,
+    .menu-card p {
+        margin: 6px 0;
+    }
 
-.restaurant-card button {
-  width: 100%;
-  margin-top: auto;
-}
+    .restaurant-card button {
+        width: 100%;
+        margin-top: auto;
+    }
 
-.restaurant-card .availability {
-  margin-bottom: 20px;
-}
+    .restaurant-card .availability {
+        margin-bottom: 20px;
+    }
 
 .availability {
-  font-weight: bold;
-  color: #27633c;
+    font-weight: bold;
+    color: #27633c;
 }
 
 .unavailable {
-  color: #9a321e;
+    color: #9a321e;
 }
 
 .price {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 #back-button {
-  margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 #restaurant-status,
 #details-status {
-  color: #62574f;
+    color: #62574f;
 }
 
 .error {
-  color: #9a321e !important;
+    color: #9a321e !important;
 }
 
 footer {
-  padding: 20px 24px;
-  text-align: center;
-  border-top: 1px solid #e6ddd5;
+    padding: 20px 24px;
+    text-align: center;
+    border-top: 1px solid #e6ddd5;
 }
 
 [hidden] {
-  display: none !important;
+    display: none !important;
 }
 
 @media (max-width: 600px) {
-  .site-header {
-    align-items: start;
-    flex-direction: column;
-  }
+    .site-header {
+        align-items: start;
+        flex-direction: column;
+    }
 
-  main {
-    padding: 32px 16px;
-  }
+    main {
+        padding: 32px 16px;
+    }
 
-  .search-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
+    .search-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
-  .search-controls > div {
-    min-width: 0;
-  }
+        .search-controls > div {
+            min-width: 0;
+        }
 
-  .restaurant-grid,
-  .menu-grid {
-    grid-template-columns: 1fr;
-  }
+    .restaurant-grid,
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+#site-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 5%;
+    background-color: white;
+    border-bottom: 1px solid #e6ddd5;
+}
+
+    #site-nav a {
+        padding: 8px 12px;
+        color: #242424;
+        text-decoration: none;
+        border-radius: 6px;
+    }
+
+        #site-nav a:hover {
+            background-color: #f3e5db;
+        }
+
+        #site-nav a.active {
+            background-color: #a83e16;
+            color: white;
+        }
+
+@media (max-width: 600px) {
+    #site-nav {
+        padding: 12px 16px;
+        gap: 8px;
+    }
+
+        #site-nav a {
+            padding: 8px;
+            font-size: 14px;
+        }
 }
