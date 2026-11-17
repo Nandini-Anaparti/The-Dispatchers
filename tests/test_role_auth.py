@@ -158,6 +158,14 @@ def test_unauthenticated_requests(role_client):
 
     assert client.get("/restaurants/mine").status_code == 401
 
+    assert client.get(
+    "/restaurants/1/menu-items/manage"
+    ).status_code == 401
+
+    assert client.patch(
+        "/restaurants/1/menu-items/1/deactivate"
+    ).status_code == 401
+
 def test_customer_cannot_manage_restaurants(role_client):
     client, _, restaurants_path, menu_path = role_client
 
@@ -192,6 +200,16 @@ def test_customer_cannot_manage_restaurants(role_client):
 
     assert client.get(
         "/restaurants/mine",
+        headers=headers
+    ).status_code == 403
+
+    assert client.get(
+    "/restaurants/1/menu-items/manage",
+    headers=headers
+    ).status_code == 403
+
+    assert client.patch(
+        "/restaurants/1/menu-items/1/deactivate",
         headers=headers
     ).status_code == 403
 
@@ -230,6 +248,14 @@ def test_owner_can_manage_assigned_restaurant(role_client):
     assert response.status_code == 200
     assert response.json()["name"] == "Pasta"
 
+    response = client.patch(
+    "/restaurants/1/menu-items/1/deactivate",
+    headers=headers
+    )
+
+    assert response.status_code == 200
+    assert response.json()["is_active"] is False
+
 def test_owner_cannot_manage_other_restaurant(role_client):
     client, _, restaurants_path, menu_path = role_client
 
@@ -253,6 +279,16 @@ def test_owner_cannot_manage_other_restaurant(role_client):
     assert client.put(
         "/restaurants/2/menu-items/2",
         json=NEW_MENU_ITEM,
+        headers=headers
+    ).status_code == 403
+
+    assert client.get(
+    "/restaurants/2/menu-items/manage",
+    headers=headers
+    ).status_code == 403
+
+    assert client.patch(
+        "/restaurants/2/menu-items/2/deactivate",
         headers=headers
     ).status_code == 403
 

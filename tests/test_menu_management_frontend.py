@@ -5,6 +5,7 @@ def test_menu_management_page(client):
     assert 'id="menu-item-form"' in response.text
     assert 'id="restaurant-select"' in response.text
     assert 'id="menu-item-select"' in response.text
+    assert 'id="deactivate-item"' in response.text
     assert 'src="/frontend/menu-management.js"' in response.text
 
     response = client.get("/frontend/menu-management.js")
