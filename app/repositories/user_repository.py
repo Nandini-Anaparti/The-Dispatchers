@@ -1,6 +1,5 @@
 import json
 from pathlib import Path
-
 from app.schemas.user import UserInDB
 
 class UserRepository:
@@ -25,6 +24,12 @@ class UserRepository:
     def get_by_email(self, email: str) -> UserInDB | None:
         for user in self.get_all():
             if user.email.lower() == email.lower():
+                return user
+        return None
+
+    def get_by_id(self, user_id: int) -> UserInDB | None:
+        for user in self.get_all():
+            if user.id == user_id:
                 return user
         return None
 
