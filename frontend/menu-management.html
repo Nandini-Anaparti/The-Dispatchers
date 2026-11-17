@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Manage Menu | The Dispatchers</title>
+
+    <link rel="stylesheet" href="/frontend/styles.css">
+    <script src="/frontend/navbar.js" defer></script>
+    <script src="/frontend/menu-management.js" defer></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">The Dispatchers</a>
+        <span>Menu management</span>
+    </header>
+
+    <nav id="site-nav" aria-label="Main navigation"></nav>
+
+    <p id="access-message" role="status" style="padding: 24px;">
+        Checking account permissions...
+    </p>
+
+    <main id="menu-content" hidden>
+        <a href="/frontend/manage.html">
+            &larr; Back to Manage Restaurants
+        </a>
+
+        <h1>Manage Menu</h1>
+        <p>Add or update menu items for your restaurant.</p>
+
+        <p id="error" class="error" role="alert"></p>
+        <p id="success" role="status" style="color: #27633c;"></p>
+
+        <section>
+            <label for="restaurant-select">Restaurant</label>
+            <select id="restaurant-select">
+                <option value="">Choose a restaurant</option>
+            </select>
+
+            <p id="restaurant-message" role="status"></p>
+        </section>
+
+        <section id="menu-section" hidden>
+            <h2>Menu Items</h2>
+
+            <p id="menu-status" role="status"></p>
+            <ul id="menu-list"></ul>
+
+            <label for="menu-item-select">
+                Choose a menu item to edit
+            </label>
+
+            <select id="menu-item-select">
+                <option value="">-- New menu item --</option>
+            </select>
+
+            <form id="menu-item-form"
+                  class="search-controls"
+                  style="flex-direction: column; align-items: stretch; max-width: 480px;">
+
+                <div>
+                    <label for="item-name">Name</label>
+                    <input id="item-name" type="text" required>
+                </div>
+
+                <div>
+                    <label for="item-description">Description</label>
+                    <input id="item-description" type="text" required>
+                </div>
+
+                <div>
+                    <label for="item-price">Price ($)</label>
+                    <input id="item-price"
+                           type="number"
+                           min="0.01"
+                           step="0.01"
+                           required>
+                </div>
+
+                <div>
+                    <label for="item-available">
+                        <input id="item-available"
+                               type="checkbox"
+                               checked
+                               style="width: auto; min-height: 0;">
+                        Available
+                    </label>
+                </div>
+
+                <button type="submit" id="item-submit">
+                    Add Menu Item
+                </button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
