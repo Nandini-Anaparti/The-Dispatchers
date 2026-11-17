@@ -15,32 +15,45 @@ const pages = [
 ];
 
 async function showNavbar() {
-    let token = sessionStorage.getItem("access_token");
+    let currentUser = null;
+    const token = sessionStorage.getItem("access_token");
 
     if (token) {
         try {
             const response = await fetch("/auth/me", {
                 headers: {
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": "Bearer " + token
                 }
             });
 
-            if (response.status === 401) {
+            if (response.ok) {
+                currentUser = await response.json();
+            } else if (response.status === 401) {
                 sessionStorage.removeItem("access_token");
-                token = null;
             }
         } catch (error) {
             console.error("Could not check login status:", error);
         }
     }
 
-    for (const page of pages) {
+    const signedIn = currentUser !== null;
 
+    const canManage = signedIn && (
+        currentUser.role === "restaurant owner" ||
+        currentUser.role === "admin"
+    );
+
+    for (const page of pages) {
         if (page.ready === false) {
             continue;
         }
-1
-        if (token && (page.name === "Login" || page.name === "Register")) {
+
+        if (signedIn &&
+            (page.name === "Login" || page.name === "Register")) {
+            continue;
+        }
+
+        if (page.name === "Manage Restaurants" && !canManage) {
             continue;
         }
 
@@ -56,7 +69,7 @@ async function showNavbar() {
         navbar.appendChild(link);
     }
 
-    if (token) {
+    if (signedIn) {
         const logoutButton = document.createElement("button");
         logoutButton.type = "button";
         logoutButton.textContent = "Logout";
