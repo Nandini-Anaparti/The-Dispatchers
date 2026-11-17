@@ -2,49 +2,57 @@
 const navbar = document.getElementById("site-nav");
 
 const pages = [
-    { name: "Restaurants", url: "/", ready: true },
-    { name: "Manage Restaurants", url: "/frontend/manage.html", ready: true },
-    { name: "Login", url: "/frontend/login.html", ready: true },
-    { name: "Register", url: "/frontend/register.html", ready: true },
-    { name: "My Account", url: "/frontend/account.html", ready: false },
-    { name: "Cart", url: "/frontend/cart.html", ready: false },
-    { name: "Checkout", url: "/frontend/checkout.html", ready: false },
-    { name: "Orders", url: "/frontend/orders.html", ready: false },
-    { name: "Manage Menu", url: "/frontend/menu-management.html", ready: false },
-    { name: "Reviews", url: "/frontend/reviews.html", ready: false }
+    { name: "Restaurants", url: "/", ready: true, roles: ["guest", "customer", "restaurant owner", "admin"] },
+    { name: "Manage Restaurants", url: "/frontend/manage.html", ready: true, roles: ["restaurant owner", "admin"] },
+    { name: "Manage Menu", url: "/frontend/menu-management.html", ready: true, roles: ["restaurant owner", "admin"] },
+    { name: "Login", url: "/frontend/login.html", ready: true, roles: ["guest"] },
+    { name: "Register", url: "/frontend/register.html", ready: true, roles: ["guest"] },
+    { name: "My Account", url: "/frontend/account.html", ready: false, roles: ["customer"] },
+    { name: "Cart", url: "/frontend/cart.html", ready: false, roles: ["customer"] },
+    { name: "Checkout", url: "/frontend/checkout.html", ready: false, roles: ["customer"] },
+    { name: "Orders", url: "/frontend/orders.html", ready: false, roles: ["customer"] },
+    { name: "Reviews", url: "/frontend/reviews.html", ready: false, roles: ["customer"] }
 ];
 
 async function showNavbar() {
-    let token = sessionStorage.getItem("access_token");
+    let currentUser = null;
+
+    const token = sessionStorage.getItem("access_token");
 
     if (token) {
         try {
             const response = await fetch("/auth/me", {
                 headers: {
-                    "Authorization": `Bearer ${token}`
+                    "Authorization": "Bearer " + token
                 }
             });
 
-            if (response.status === 401) {
+            if (response.ok) {
+                currentUser = await response.json();
+            } else if (response.status === 401) {
                 sessionStorage.removeItem("access_token");
-                token = null;
             }
+
         } catch (error) {
             console.error("Could not check login status:", error);
         }
     }
 
-    for (const page of pages) {
+    const role = currentUser ? currentUser.role : "guest";
 
-        if (page.ready === false) {
+    navbar.replaceChildren();
+
+    for (const page of pages) {
+        if (!page.ready) {
             continue;
         }
-1
-        if (token && (page.name === "Login" || page.name === "Register")) {
+
+        if (!page.roles.includes(role)) {
             continue;
         }
 
         const link = document.createElement("a");
+
         link.href = page.url;
         link.textContent = page.name;
 
@@ -56,8 +64,9 @@ async function showNavbar() {
         navbar.appendChild(link);
     }
 
-    if (token) {
+    if (currentUser) {
         const logoutButton = document.createElement("button");
+
         logoutButton.type = "button";
         logoutButton.textContent = "Logout";
 

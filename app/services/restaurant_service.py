@@ -5,6 +5,7 @@ touches files directly and never deals with HTTP details.
 """
 
 from app.repositories.restaurant_repository import RestaurantRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.restaurant import Restaurant, RestaurantCreate, RestaurantUpdate
 
 
@@ -13,8 +14,14 @@ class RestaurantNotFoundError(Exception):
 
 
 class RestaurantService:
-    def __init__(self, repository: RestaurantRepository):
+    
+    def __init__(
+        self,
+        repository: RestaurantRepository,
+        user_repository: UserRepository | None = None
+    ):
         self.repository = repository
+        self.user_repository = user_repository
 
     def list_restaurants(
         self,
@@ -50,13 +57,39 @@ class RestaurantService:
         if restaurant is None:
             raise RestaurantNotFoundError(f"Restaurant {restaurant_id} not found")
         return restaurant
+    
+    def create_restaurant(
+        self,
+        data: RestaurantCreate,
+        owner_id: int | None = None
+    ) -> Restaurant:
 
-    def create_restaurant(self, data: RestaurantCreate) -> Restaurant:
-        """Create a restaurant with the next free id (highest id + 1)."""
+        if owner_id is not None:
+            if self.user_repository is None:
+                raise ValueError("User repository is required")
+
+            owner = self.user_repository.get_by_id(owner_id)
+
+            if owner is None or owner.role != "restaurant owner" or not owner.is_active:
+                raise ValueError("Restaurant owner not found")
+
         existing = self.repository.get_all()
         next_id = max((r.id for r in existing), default=0) + 1
-        restaurant = Restaurant(id=next_id, **data.model_dump())
-        return self.repository.add(restaurant)
+
+        restaurant = Restaurant(
+            id=next_id,
+            **data.model_dump()
+        )
+
+        saved_restaurant = self.repository.add(restaurant)
+
+        if owner_id is not None:
+            self.user_repository.assign_restaurant(
+                owner_id,
+                saved_restaurant.id
+            )
+
+        return saved_restaurant
 
     def update_restaurant(self, restaurant_id: int, changes: RestaurantUpdate) -> Restaurant:
         """Apply only the fields that were sent, keep everything else the same."""

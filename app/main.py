@@ -3,6 +3,7 @@ from app.api.routes.restaurants import router as restaurants_router
 from app.api.routes.menu_items import router as menu_items_router
 from app.api.routes.customers import router as customers_router
 from app.api.routes.auth import router as auth_router
+from app.api.routes.restaurant_owners import router as restaurant_owners_router
 from pathlib import Path
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -24,6 +25,7 @@ app.include_router(restaurants_router)
 app.include_router(menu_items_router)
 app.include_router(customers_router)
 app.include_router(auth_router)
+app.include_router(restaurant_owners_router)
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)
 def root():

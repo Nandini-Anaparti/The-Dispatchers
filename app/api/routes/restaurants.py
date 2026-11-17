@@ -1,11 +1,13 @@
 """Route layer: HTTP concerns only (paths, status codes, response models)."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-
-from app.core.config import get_restaurants_data_path
+from app.core.config import get_restaurants_data_path, get_users_data_path
 from app.repositories.restaurant_repository import RestaurantRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.restaurant import Restaurant, RestaurantCreate, RestaurantUpdate
 from app.services.restaurant_service import RestaurantNotFoundError, RestaurantService
+from app.core.permissions import require_restaurant_creator, require_restaurant_access
+from app.schemas.user import UserInDB
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
 
@@ -24,8 +26,10 @@ def get_restaurant_service() -> RestaurantService:
     FastAPI calls this for each request (via Depends), so the data path from
     config is always current. Tests can also override this dependency.
     """
-    repository = RestaurantRepository(get_restaurants_data_path())
-    return RestaurantService(repository)
+    restaurant_repository = RestaurantRepository(get_restaurants_data_path())
+    user_repository = UserRepository(get_users_data_path())
+
+    return RestaurantService(restaurant_repository, user_repository)
 
 
 @router.get("", response_model=list[Restaurant], summary="List, search, and filter restaurants")
@@ -43,6 +47,20 @@ def list_restaurants(
     """
     return service.list_restaurants(name=name, cuisine=cuisine, is_open=is_open, min_rating=min_rating)
 
+@router.get("/mine", response_model=list[Restaurant])
+def get_my_restaurants(
+    current_user: UserInDB = Depends(require_restaurant_creator),
+    service: RestaurantService = Depends(get_restaurant_service)
+):
+    restaurants = service.list_restaurants()
+
+    if current_user.role == "admin":
+        return restaurants
+
+    return [
+        restaurant for restaurant in restaurants
+        if restaurant.id in current_user.restaurant_ids
+    ]
 
 @router.get(
     "/{restaurant_id}",
@@ -60,12 +78,21 @@ def get_restaurant(restaurant_id: int, service: RestaurantService = Depends(get_
 
 
 @router.post("", response_model=Restaurant, status_code=201, summary="Create a restaurant")
-def create_restaurant(data: RestaurantCreate, service: RestaurantService = Depends(get_restaurant_service)):
+def create_restaurant(
+    data: RestaurantCreate,
+    current_user: UserInDB = Depends(require_restaurant_creator),
+    service: RestaurantService = Depends(get_restaurant_service)
+):
     """Create a new restaurant. The server assigns the id.
 
     Returns 201 with the created restaurant, or 422 if the body is invalid.
     """
-    return service.create_restaurant(data)
+    owner_id = None
+
+    if current_user.role == "restaurant owner":
+        owner_id = current_user.id
+
+    return service.create_restaurant(data, owner_id=owner_id)
 
 
 @router.put(
@@ -77,6 +104,7 @@ def create_restaurant(data: RestaurantCreate, service: RestaurantService = Depen
 def update_restaurant(
     restaurant_id: int,
     changes: RestaurantUpdate,
+    current_user: UserInDB = Depends(require_restaurant_access),
     service: RestaurantService = Depends(get_restaurant_service),
 ):
     """Update a restaurant. Only the fields you send are changed.

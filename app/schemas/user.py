@@ -1,19 +1,26 @@
 from typing import Literal
-from pydantic import BaseModel, EmailStr, Field, field_validator
+from pydantic import BaseModel, EmailStr, Field, field_validator, ConfigDict
 
-class CustomerRegister(BaseModel):
+class AccountRegister(BaseModel):
     name: str = Field(min_length=1)
     email: EmailStr
     password: str = Field(min_length=8)
-    delivery_address: str | None = None
 
     @field_validator("name")
     @classmethod
     def name_cannot_be_blank(cls, name):
         name = name.strip()
+
         if not name:
             raise ValueError("Name cannot be blank")
+
         return name
+
+class CustomerRegister(AccountRegister):
+    delivery_address: str | None = None
+
+class RestaurantOwnerRegister(AccountRegister):
+    model_config = ConfigDict(extra="forbid")
 
 class User(BaseModel):
     id: int
@@ -25,3 +32,4 @@ class User(BaseModel):
 
 class UserInDB(User):
     password_hash: str
+    restaurant_ids: list[int] = Field(default_factory=list)

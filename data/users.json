@@ -1,1 +1,24 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "Mary",
+    "email": "mary@email.com",
+    "role": "restaurant owner",
+    "is_active": true,
+    "delivery_address": null,
+    "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$hEzIQanV1Wg2J8YDomvv5A$GxY2YmgdaebM9UBfssfB0ssearrIlB6jvNPKdEbv0s0",
+    "restaurant_ids": [
+      11
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Kelsey",
+    "email": "kelsey@email.com",
+    "role": "customer",
+    "is_active": true,
+    "delivery_address": null,
+    "password_hash": "$argon2id$v=19$m=65536,t=3,p=4$jylUw8x3yTOdMkwjRPU4xw$HCEiAn5N3ZnJpxg22amEyH5XU22HzS4e/ibUsNJcIwg",
+    "restaurant_ids": []
+  }
+]
