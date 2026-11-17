@@ -228,21 +228,34 @@ footer {
     border-bottom: 1px solid #e6ddd5;
 }
 
-    #site-nav a {
-        padding: 8px 12px;
-        color: #242424;
-        text-decoration: none;
-        border-radius: 6px;
-    }
+#site-nav a {
+    padding: 8px 12px;
+    color: #242424;
+    text-decoration: none;
+    border-radius: 6px;
+}
 
-        #site-nav a:hover {
-            background-color: #f3e5db;
-        }
+#site-nav a:hover {
+    background-color: #f3e5db;
+}
 
-        #site-nav a.active {
-            background-color: #a83e16;
-            color: white;
-        }
+#site-nav a.active {
+    background-color: #a83e16;
+    color: white;
+}
+
+#site-nav button {
+    min-height: 0;
+    padding: 8px 12px;
+    background: none;
+    color: #242424;
+    border-radius: 6px;
+    font-weight: normal;
+}
+
+#site-nav button:hover {
+    background-color: #f3e5db;
+}
 
 @media (max-width: 600px) {
     #site-nav {

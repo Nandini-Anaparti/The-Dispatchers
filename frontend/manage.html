@@ -42,84 +42,99 @@
     </main>
 
     <script>
-                    const $ = id => document.getElementById(id);
-                    let restaurantId = null; // null = create new, number = edit that restaurant
+        const $ = id => document.getElementById(id);
+        let restaurantId = null; // null = create new, number restaurant
 
-                    function showError(msg)   { $("error").textContent = msg; $("success").textContent = ""; }
-                    function showSuccess(msg) { $("success").textContent = msg; $("error").textContent = ""; }
+        function showError(msg)   { $("error").textCon$("success").textContent = ""; }
+        function showSuccess(msg) { $("success").textCon$("error").textContent = ""; }
 
-                    // Turns a failed response into readable text (404 message or 422 field errors)
-                    async function errorMessage(res) {
-                      try {
-                        const body = await res.json();
-                        if (typeof body.detail === "string") return body.detail;
-                        if (Array.isArray(body.detail))
-                          return body.detail.map(d => d.loc.join(".") + ": " + d.msg).join("; ");
-                      } catch (e) {}
-                      return "Request failed (" + res.status + ")";
-                    }
+        // Turns a failed response into readable text (404 mesfield errors)
+        async function errorMessage(res) {
+          try {
+            const body = await res.json();
+            if (typeof body.detail === "string") return body.detail;
+            if (Array.isArray(body.detail))
+              return body.detail.map(d => d.loc.join(".") + ": " +("; ");
+          } catch (e) {}
+          return "Request failed (" + res.status + ")";
+        }
 
-                    async function api(method, path, body) {
-                      const options = { method: method };
-                      if (body) {
-                        options.headers = { "Content-Type": "application/json" };
-                        options.body = JSON.stringify(body);
-                      }
-                      const res = await fetch(path, options);
-                      if (!res.ok) throw new Error(await errorMessage(res));
-                      return res.json();
-                    }
+        async function api(method, path, body) {
+            const options = {
+                method: method,
+                headers: {}
+            };
 
-                    async function loadDropdown(selectedId) {
-                      const select = $("restaurant-select");
-                      select.replaceChildren(new Option("-- New restaurant --", ""));
-                      const restaurants = await api("GET", "/restaurants");
-                      restaurants.forEach(r => select.add(new Option(r.id + ": " + r.name, r.id)));
-                      select.value = selectedId || "";
-                    }
+            const token = sessionStorage.getItem("access_token");
 
-                    function fillForm(r) {
-                      $("r-name").value = r ? r.name : "";
-                      $("r-cuisine").value = r ? r.cuisine : "";
-                      $("r-rating").value = r ? r.rating : "";
-                      $("r-time").value = r ? r.delivery_time_minutes : "";
-                      $("r-fee").value = r ? r.delivery_fee : "";
-                      $("r-address").value = r ? r.address : "";
-                      $("r-open").checked = r ? r.is_open : true;
-                      $("r-submit").textContent = r ? "Update restaurant" : "Create restaurant";
-                    }
+            if (token) {
+                options.headers["Authorization"] = "Bearer " + token;
+            }
 
-                    $("restaurant-select").addEventListener("change", async e => {
-                      restaurantId = e.target.value ? Number(e.target.value) : null;
-                      try {
-                        fillForm(restaurantId ? await api("GET", "/restaurants/" + restaurantId) : null);
-                        $("error").textContent = "";
-                        $("success").textContent = "";
-                      } catch (err) { showError(err.message); }
-                    });
+            if (body) {
+                options.headers["Content-Type"] = "application/json";
+                options.body = JSON.stringify(body);
+            }
 
-                    $("restaurant-form").addEventListener("submit", async e => {
-                      e.preventDefault();
-                      const body = {
-                        name: $("r-name").value.trim(),
-                        cuisine: $("r-cuisine").value.trim(),
-                        rating: Number($("r-rating").value),
-                        delivery_time_minutes: Number($("r-time").value),
-                        delivery_fee: Number($("r-fee").value),
-                        address: $("r-address").value.trim(),
-                        is_open: $("r-open").checked,
-                      };
-                      try {
-                        const saved = restaurantId
-                          ? await api("PUT", "/restaurants/" + restaurantId, body)
-                          : await api("POST", "/restaurants", body);
-                        restaurantId = saved.id;
-                        await loadDropdown(saved.id);
-                        showSuccess('Saved "' + saved.name + '" (id ' + saved.id + ").");
-                      } catch (err) { showError(err.message); }
-                    });
+            const res = await fetch(path, options);
 
-                    loadDropdown().catch(err => showError("Could not load restaurants: " + err.message));
+            if (!res.ok) {
+                throw new Error(await errorMessage(res));
+            }
+
+            return res.json();
+        }
+
+        async function loadDropdown(selectedId) {
+          const select = $("restaurant-select");
+          select.replaceChildren(new Option("-- New restaurant --", ""));
+          const restaurants = await api("GET", "/restaurants");
+          restaurants.forEach(r => select.add(new Option(r.id + ": r.id)));
+          select.value = selectedId || "";
+        }
+
+        function fillForm(r) {
+          $("r-name").value = r ? r.name : "";
+          $("r-cuisine").value = r ? r.cuisine : "";
+          $("r-rating").value = r ? r.rating : "";
+          $("r-time").value = r ? r.delivery_time_minutes : "";
+          $("r-fee").value = r ? r.delivery_fee : "";
+          $("r-address").value = r ? r.address : "";
+          $("r-open").checked = r ? r.is_open : true;
+          $("r-submit").textContent = r ? "Update restaurantrestaurant";
+        }
+
+        $("restaurant-select").addEventListener("change", async e => {
+          restaurantId = e.target.value ? Number(e.target.value) : null;
+          try {
+            fillForm(restaurantId ? await api("GET", "/restaurants/" + restaurantId) : null);
+            $("error").textContent = "";
+            $("success").textContent = "";
+          } catch (err) { showError(err.message); }
+        });
+
+        $("restaurant-form").addEventListener("submit", async e => {
+          e.preventDefault();
+          const body = {
+            name: $("r-name").value.trim(),
+            cuisine: $("r-cuisine").value.trim(),
+            rating: Number($("r-rating").value),
+            delivery_time_minutes: Number($("r-time").value),
+            delivery_fee: Number($("r-fee").value),
+            address: $("r-address").value.trim(),
+            is_open: $("r-open").checked,
+          };
+          try {
+            const saved = restaurantId
+              ? await api("PUT", "/restaurants/" + restaurantId, body)
+              : await api("POST", "/restaurants", body);
+            restaurantId = saved.id;
+           await loadDropdown(saved.id);
+            showSuccess('Saved "' + saved.name + '" (id ' + saved.id + ").");
+          } catch (err) { showError(err.message); }
+        });
+
+        loadDropdown().catch(err => showError("Could not load restaerr.message));
     </script>
 </body>
 </html>

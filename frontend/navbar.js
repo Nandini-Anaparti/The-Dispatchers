@@ -1,9 +1,10 @@
+
 const navbar = document.getElementById("site-nav");
 
 const pages = [
     { name: "Restaurants", url: "/", ready: true },
     { name: "Manage Restaurants", url: "/frontend/manage.html", ready: true },
-    { name: "Login", url: "/frontend/login.html", ready: false },
+    { name: "Login", url: "/frontend/login.html", ready: true },
     { name: "Register", url: "/frontend/register.html", ready: true },
     { name: "My Account", url: "/frontend/account.html", ready: false },
     { name: "Cart", url: "/frontend/cart.html", ready: false },
@@ -13,10 +14,33 @@ const pages = [
     { name: "Reviews", url: "/frontend/reviews.html", ready: false }
 ];
 
-if (navbar) {
+async function showNavbar() {
+    let token = sessionStorage.getItem("access_token");
+
+    if (token) {
+        try {
+            const response = await fetch("/auth/me", {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 401) {
+                sessionStorage.removeItem("access_token");
+                token = null;
+            }
+        } catch (error) {
+            console.error("Could not check login status:", error);
+        }
+    }
+
     for (const page of pages) {
 
         if (page.ready === false) {
+            continue;
+        }
+1
+        if (token && (page.name === "Login" || page.name === "Register")) {
             continue;
         }
 
@@ -31,4 +55,21 @@ if (navbar) {
 
         navbar.appendChild(link);
     }
+
+    if (token) {
+        const logoutButton = document.createElement("button");
+        logoutButton.type = "button";
+        logoutButton.textContent = "Logout";
+
+        logoutButton.addEventListener("click", () => {
+            sessionStorage.removeItem("access_token");
+            window.location.href = "/";
+        });
+
+        navbar.appendChild(logoutButton);
+    }
+}
+
+if (navbar) {
+    showNavbar();
 }

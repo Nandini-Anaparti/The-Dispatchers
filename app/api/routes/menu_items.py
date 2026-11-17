@@ -4,6 +4,8 @@ from app.schemas.menu_item import MenuItem
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.menu_item import MenuItem, MenuItemCreate, MenuItemUpdate
+from app.core.permissions import require_restaurant_access
+from app.schemas.user import UserInDB
 from app.services.menu_item_service import (
     MenuItemService,
     MenuItemNotFoundError,
@@ -74,6 +76,7 @@ def get_menu_item(
 def add_menu_item(
     restaurant_id: int,
     item: MenuItemCreate,
+    current_user: UserInDB = Depends(require_restaurant_access),
     service: MenuItemService = Depends(get_menu_service)
 ):
     """Add a new menu item to a restaurant."""
@@ -87,6 +90,7 @@ def update_menu_item(
     restaurant_id: int,
     item_id: int,
     item: MenuItemUpdate,
+    current_user: UserInDB = Depends(require_restaurant_access),
     service: MenuItemService = Depends(get_menu_service)
 ):
     """Update an existing menu item."""

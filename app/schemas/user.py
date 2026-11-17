@@ -25,3 +25,4 @@ class User(BaseModel):
 
 class UserInDB(User):
     password_hash: str
+    restaurant_ids: list[int] = Field(default_factory=list)

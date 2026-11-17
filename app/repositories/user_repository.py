@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from app.schemas.user import UserInDB
 
+
 class UserRepository:
     def __init__(self, data_path: Path):
         self.data_path = Path(data_path)
@@ -33,15 +34,12 @@ class UserRepository:
                 return user
         return None
 
-    def add(self, user: UserInDB) -> UserInDB:
-        users = self.get_all()
-        users.append(user)
-
+    def save_all(self, users: list[UserInDB]) -> None:
         temporary_path = self.data_path.with_suffix(".tmp")
 
         temporary_path.write_text(
             json.dumps(
-                [item.model_dump() for item in users],
+                [user.model_dump() for user in users],
                 indent=2
             ),
             encoding="utf-8"
@@ -49,4 +47,26 @@ class UserRepository:
 
         temporary_path.replace(self.data_path)
 
+    def add(self, user: UserInDB) -> UserInDB:
+        users = self.get_all()
+        users.append(user)
+
+        self.save_all(users)
+
         return user
+
+    def assign_restaurant(self, user_id: int, restaurant_id: int) -> None:
+        users = self.get_all()
+
+        for user in users:
+            if user.id == user_id:
+                if user.role != "restaurant owner":
+                    raise ValueError("User is not a restaurant owner")
+
+                if restaurant_id not in user.restaurant_ids:
+                    user.restaurant_ids.append(restaurant_id)
+
+                self.save_all(users)
+                return
+
+        raise ValueError("User not found")
