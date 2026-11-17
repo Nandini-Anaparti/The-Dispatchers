@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from app.schemas.user import UserInDB
 
+
 class UserRepository:
     def __init__(self, data_path: Path):
         self.data_path = Path(data_path)
@@ -32,7 +33,7 @@ class UserRepository:
             if user.id == user_id:
                 return user
         return None
-    
+
     def save_all(self, users: list[UserInDB]) -> None:
         temporary_path = self.data_path.with_suffix(".tmp")
 
