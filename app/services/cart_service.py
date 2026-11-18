@@ -78,3 +78,14 @@ class CartService:
         self.cart_repo.update(cart)
         return self.build_view(cart)
 
+    def remove_item(self, customer_id: int, menu_item_id: int) -> CartView:
+        require_active_customer(self.user_repo, customer_id)
+        cart = self._get_or_create(customer_id)
+        if not any(i.menu_item_id == menu_item_id for i in cart.items):
+            raise ItemNotInCartError()
+        cart.items = [i for i in cart.items if i.menu_item_id != menu_item_id]
+        if not cart.items:
+            cart.restaurant_id = None
+        self.cart_repo.update(cart)
+        return self.build_view(cart)
+

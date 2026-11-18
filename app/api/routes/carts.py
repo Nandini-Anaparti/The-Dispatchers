@@ -23,3 +23,9 @@ def update_item(customer_id: int, menu_item_id: int, body: CartItemUpdate,
                 service: CartService = Depends(get_cart_service)):
     return call(lambda: service.update_quantity(customer_id, menu_item_id, body.quantity))
 
+
+@router.delete("/items/{menu_item_id}", response_model=CartView,
+               summary="Remove an item from the cart", responses=ERROR_DOCS)
+def remove_item(customer_id: int, menu_item_id: int, service: CartService = Depends(get_cart_service)):
+    return call(lambda: service.remove_item(customer_id, menu_item_id))
+
