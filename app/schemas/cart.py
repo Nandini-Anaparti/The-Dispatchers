@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 
 class CartItem(BaseModel):
     menu_item_id: int
-    quantity: int = Field(ge=1)
+    quantity: int = Field(ge=1, strict=True)
 
 
 class Cart(BaseModel):
@@ -41,4 +41,3 @@ class CartView(BaseModel):
     subtotal: float
     delivery_fee: float
     total: float
-    

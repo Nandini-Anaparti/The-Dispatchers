@@ -5,6 +5,7 @@ from app.api.routes.customers import router as customers_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.restaurant_owners import router as restaurant_owners_router
 from app.api.routes.carts import router as carts_router
+from app.api.routes.checkout import router as checkout_router
 from app.api.routes.orders import router as orders_router
 from pathlib import Path
 from typing import Literal
@@ -31,6 +32,7 @@ app.include_router(customers_router)
 app.include_router(auth_router)
 app.include_router(restaurant_owners_router)
 app.include_router(carts_router)
+app.include_router(checkout_router)
 app.include_router(orders_router)
 
 @app.get("/", response_class=FileResponse, include_in_schema=False)

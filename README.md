@@ -204,6 +204,12 @@ Run the role authorization tests from the project root with the virtual environm
 python -m pytest tests/test_role_auth.py -q
 ```
 
+### Checkout validation
+
+`POST /customers/{customer_id}/checkout/validate` requires the customer's bearer token and returns the active cart if it is ready for pricing. It checks the account, cart contents, restaurant status, item availability, and quantities against current data. Validation leaves the cart and orders unchanged.
+
+An absent active cart returns `404`. An empty or invalid cart, closed or missing restaurant, or unavailable item returns `409`.
+
 ## Data and Configuration
 
 Representative restaurant data is stored in:
