@@ -152,4 +152,23 @@ Copy this block for each new entry.
 - Purpose: Enforce authenticated cart ownership and preserve one active cart per customer under concurrent requests.
 - Influence: Codex added a reusable ownership dependency and moved active-cart lookup, ID allocation, and saving into one repository operation protected by an in-process lock.
 - Validation: Tests exercise authorization and verify that concurrent requests return the same cart ID with one active record in temporary JSON storage.
+
+#### Customer Profile
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer profile API, JSON persistence, My Account page, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Implement profile retrieval and updates for signed-in customers.
+- Influence: Codex added customer-only endpoints, limited edits to name and delivery address, connected the frontend form, and added regression tests.
+- Validation: All 129 pytest tests passed, including tests for persistence, validation, and account isolation.
+- PR: Not opened.
+
+#### Customer Address
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: My Account address form, customer profile API and persistence, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Let customers manage delivery addresses through My Account.
+- Influence: Codex added structured address validation and preserved the formatted address field used by existing customer records.
+- Validation: All 135 pytest tests passed. The address tests cover adding, updating, retrieving, and rejecting missing or blank fields. Checkout integration is pending the checkout implementation.
 - PR: Not opened.

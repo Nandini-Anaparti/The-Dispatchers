@@ -65,7 +65,7 @@ def test_role_based_navigation(client):
 
     assert (
         'name: "My Account", url: "/frontend/account.html", '
-        'ready: false, roles: ["customer"]'
+        'ready: true, roles: ["customer"]'
     ) in js_code
 
     assert (
