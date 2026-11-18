@@ -22,6 +22,32 @@ class CustomerRegister(AccountRegister):
 class RestaurantOwnerRegister(AccountRegister):
     model_config = ConfigDict(extra="forbid")
 
+class DeliveryAddress(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    street: str = Field(min_length=1)
+    city: str = Field(min_length=1)
+    region: str = Field(min_length=1)
+    postal_code: str = Field(min_length=1)
+    country: str = Field(min_length=1)
+
+    def formatted(self) -> str:
+        return f"{self.street}, {self.city}, {self.region} {self.postal_code}, {self.country}"
+
+
+class CustomerProfileUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    name: str = Field(min_length=1)
+    delivery_address: DeliveryAddress | str | None = None
+
+    @field_validator("delivery_address")
+    @classmethod
+    def legacy_address_cannot_be_blank(cls, address):
+        if address == "":
+            raise ValueError("Delivery address cannot be blank")
+        return address
+
 class User(BaseModel):
     id: int
     name: str
@@ -30,6 +56,10 @@ class User(BaseModel):
     is_active: bool = True
     delivery_address: str | None = None
 
-class UserInDB(User):
+class CustomerProfile(User):
+    delivery_address_details: DeliveryAddress | None = None
+
+
+class UserInDB(CustomerProfile):
     password_hash: str
     restaurant_ids: list[int] = Field(default_factory=list)

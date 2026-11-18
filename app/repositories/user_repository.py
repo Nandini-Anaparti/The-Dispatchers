@@ -1,7 +1,9 @@
 import json
 from pathlib import Path
-from app.schemas.user import UserInDB
+from threading import Lock
+from app.schemas.user import CustomerProfileUpdate, DeliveryAddress, UserInDB
 
+_user_write_lock = Lock()
 
 class UserRepository:
     def __init__(self, data_path: Path):
@@ -48,25 +50,53 @@ class UserRepository:
         temporary_path.replace(self.data_path)
 
     def add(self, user: UserInDB) -> UserInDB:
-        users = self.get_all()
-        users.append(user)
-
-        self.save_all(users)
+        with _user_write_lock:
+            users = self.get_all()
+            users.append(user)
+            self.save_all(users)
 
         return user
 
     def assign_restaurant(self, user_id: int, restaurant_id: int) -> None:
-        users = self.get_all()
-
-        for user in users:
-            if user.id == user_id:
-                if user.role != "restaurant owner":
-                    raise ValueError("User is not a restaurant owner")
-
-                if restaurant_id not in user.restaurant_ids:
-                    user.restaurant_ids.append(restaurant_id)
-
-                self.save_all(users)
-                return
+        with _user_write_lock:
+            users = self.get_all()
+            for user in users:
+                if user.id == user_id:
+                    if user.role != "restaurant owner":
+                        raise ValueError("User is not a restaurant owner")
+                    if restaurant_id not in user.restaurant_ids:
+                        user.restaurant_ids.append(restaurant_id)
+                    self.save_all(users)
+                    return
 
         raise ValueError("User not found")
+
+    def update_customer_profile(
+        self, user_id: int, data: CustomerProfileUpdate
+    ) -> UserInDB | None:
+        with _user_write_lock:
+            users = self.get_all()
+            for user in users:
+                if user.id == user_id and user.role == "customer" and user.is_active:
+                    user.name = data.name
+                    if "delivery_address" in data.model_fields_set:
+                        address = data.delivery_address
+                        if isinstance(address, DeliveryAddress):
+                            user.delivery_address = address.formatted()
+                            user.delivery_address_details = address
+                        else:
+                            user.delivery_address = address
+                            user.delivery_address_details = None
+                    self.save_all(users)
+                    return user
+        return None
+
+    def deactivate_customer(self, user_id: int) -> bool:
+        with _user_write_lock:
+            users = self.get_all()
+            for user in users:
+                if user.id == user_id and user.role == "customer" and user.is_active:
+                    user.is_active = False
+                    self.save_all(users)
+                    return True
+        return False
