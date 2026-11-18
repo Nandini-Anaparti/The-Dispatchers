@@ -47,3 +47,24 @@ class CartService:
     def get_cart(self, customer_id: int) -> CartView:
         require_active_customer(self.user_repo, customer_id)
         return self.build_view(self._get_or_create(customer_id))
+
+    def add_item(self, customer_id: int, menu_item_id: int, quantity: int) -> CartView:
+        require_active_customer(self.user_repo, customer_id)
+        cart = self._get_or_create(customer_id)
+        item = self.menu_repo.get_by_id(menu_item_id)
+        if item is None:
+            raise MenuItemNotFoundError()
+        if not item.is_available:
+            raise MenuItemUnavailableError()
+        if cart.items and cart.restaurant_id != item.restaurant_id:
+            raise DifferentRestaurantError()
+
+        cart.restaurant_id = item.restaurant_id
+        existing = next((i for i in cart.items if i.menu_item_id == menu_item_id), None)
+        if existing:
+            existing.quantity += quantity
+        else:
+            cart.items.append(CartItem(menu_item_id=menu_item_id, quantity=quantity))
+        self.cart_repo.update(cart)
+        return self.build_view(cart)
+    
