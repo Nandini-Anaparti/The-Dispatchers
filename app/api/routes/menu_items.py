@@ -1,10 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.menu_item import MenuItem
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.menu_item import MenuItem, MenuItemCreate, MenuItemUpdate
 from app.core.permissions import require_restaurant_access
-from app.schemas.user import UserInDB
 from app.services.menu_item_service import (
     MenuItemService,
     MenuItemNotFoundError,
@@ -55,10 +53,13 @@ def get_menu_items(
             detail="Restaurant not found"
         )
 
-@router.get("/manage", response_model=list[MenuItem])
+@router.get(
+    "/manage",
+    response_model=list[MenuItem],
+    dependencies=[Depends(require_restaurant_access)],
+)
 def get_managed_menu_items(
     restaurant_id: int,
-    current_user: UserInDB = Depends(require_restaurant_access),
     service: MenuItemService = Depends(get_menu_service)
 ):
     try:
@@ -88,11 +89,15 @@ def get_menu_item(
         raise HTTPException(status_code=404, detail="Menu item not found")
 
     
-@router.post("", response_model=MenuItem, status_code=201)
+@router.post(
+    "",
+    response_model=MenuItem,
+    status_code=201,
+    dependencies=[Depends(require_restaurant_access)],
+)
 def add_menu_item(
     restaurant_id: int,
     item: MenuItemCreate,
-    current_user: UserInDB = Depends(require_restaurant_access),
     service: MenuItemService = Depends(get_menu_service)
 ):
     """Add a new menu item to a restaurant."""
@@ -101,12 +106,15 @@ def add_menu_item(
     except RestaurantNotFoundError:
         raise HTTPException(status_code=404, detail="Restaurant not found")
 
-@router.put("/{item_id}", response_model=MenuItem)
+@router.put(
+    "/{item_id}",
+    response_model=MenuItem,
+    dependencies=[Depends(require_restaurant_access)],
+)
 def update_menu_item(
     restaurant_id: int,
     item_id: int,
     item: MenuItemUpdate,
-    current_user: UserInDB = Depends(require_restaurant_access),
     service: MenuItemService = Depends(get_menu_service)
 ):
     """Update an existing menu item."""
@@ -117,11 +125,14 @@ def update_menu_item(
     except MenuItemNotFoundError:
         raise HTTPException(status_code=404, detail="Menu item not found")
 
-@router.patch("/{item_id}/deactivate", response_model=MenuItem)
+@router.patch(
+    "/{item_id}/deactivate",
+    response_model=MenuItem,
+    dependencies=[Depends(require_restaurant_access)],
+)
 def deactivate_menu_item(
     restaurant_id: int,
     item_id: int,
-    current_user: UserInDB = Depends(require_restaurant_access),
     service: MenuItemService = Depends(get_menu_service)
 ):
     try:
