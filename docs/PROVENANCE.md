@@ -255,3 +255,13 @@ Copy this block for each new entry.
 - Influence: Codex added a status-only user update, connected the confirmation flow, and reused the active-customer rule before checkout saves an order.
 - Validation: Tests verify persisted deactivation, denied profile and cart access, and rejection of checkout finalization while preserving the cart and existing orders.
 - PR: #117
+
+#### Checkout Validation
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Checkout validation service, API route, and `tests/cart/test_checkout_validation.py`
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Validate the current customer, cart, restaurant, and menu before order placement.
+- Influence: Codex added a read-only validation step and integration tests for successful validation and rejected checkout attempts.
+- Validation: Tests verify current menu data is used and that validation leaves cart and order files unchanged.
+- PR: #120.
