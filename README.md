@@ -113,6 +113,8 @@ Tests in `tests/test_frontend.py` verify that the page and static assets are ser
 | GET | `/restaurants/{restaurant_id}` | Returns one restaurant, or `404` if the id does not exist |
 | POST | `/restaurants` | Creates a restaurant (server assigns the id). Returns `201`, or `422` if the body is invalid |
 | PUT | `/restaurants/{restaurant_id}` | Updates only the fields sent. Returns `404` if the id does not exist, or `422` if a field is invalid |
+| GET | `/customers/{customer_id}/orders` | Your order history, newest first (customer token, own account only) |
+| GET | `/customers/{customer_id}/orders/{order_id}` | One of your orders. `404` if it does not exist or is not yours |
 | GET | `/docs` | Interactive OpenAPI (Swagger) documentation |
 
 Example filter: `/restaurants?cuisine=italian&is_open=true` returns open Italian restaurants.

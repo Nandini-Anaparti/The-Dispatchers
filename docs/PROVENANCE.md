@@ -80,6 +80,38 @@ Copy this block for each new entry.
 - Validation: Ran the full pytest suite locally (46 passing), including tests that new and updated restaurants are saved to the data file, that missing restaurants return 404, that invalid input returns 422, and that the 404 responses appear in the OpenAPI docs. All tests use temporary data files, so the committed `data/restaurants.json` is not modified. Manually tested creating a restaurant, updating one, and requesting a missing id (404) through the FastAPI `/docs` page, and reviewed the implementation by walking through the code and explaining how each layer works.
 - PR: #16
 
+### Milestone 2 (Integrated Core System)
+
+#### Entry A6
+- Student(s): Anjana Ratnala
+- Artifact: `app/schemas/order.py`, `app/repositories/order_repository.py`, `app/services/order_service.py`, `app/core/order_config.py`, `data/orders.json`, `tests/orders/`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-03: create and persist a complete order snapshot (customer, restaurant, items, checkout-time prices, total, status) through a new Order Repository.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests that the order stores every required field, is saved to JSON, gets a unique ID, survives a restart, keeps its checkout-time price after a menu price change, and that an empty cart creates no order.
+- PR: #__
+
+#### Entry A7
+- Student(s): Anjana Ratnala
+- Artifact: `app/services/order_service.py` (`finalize_checkout`), `tests/orders/test_checkout_finalize.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-04: save the order first and only then close the cart, leaving the cart unchanged if saving fails.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including a simulated order-save failure that leaves the cart unchanged, a successful checkout that saves the order and closes the cart, rejection of empty or mismatched carts, and a new empty cart after checkout.
+- PR: #__
+
+#### Entry A8
+- Student(s): Anjana Ratnala
+- Artifact: `app/api/routes/orders.py`, `app/services/order_service.py` (`list_orders`, `get_order`), `app/main.py`, `tests/orders/test_order_retrieval.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-01: let customers retrieve one order and their order history.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests for item/price/total/status in the response, newest-first history, 404 for missing and other customers' orders, 401/403 access rules, and orders still being there after a restart. Manually tried the endpoints through the FastAPI `/docs` page.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti
