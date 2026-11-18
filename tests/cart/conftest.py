@@ -4,13 +4,12 @@ from types import SimpleNamespace
 import pytest
 from fastapi.testclient import TestClient
 
-from app.api.routes.cart_support import get_cart_service
+from app.core.auth import create_access_token
 from app.main import app
 from app.repositories.cart_repository import CartRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.services.cart_service import CartService
 
 
 def _restaurant(rid, fee):
@@ -23,8 +22,8 @@ def _item(iid, rid, price, available=True):
             "price": price, "is_available": available}
 
 
-def _user(uid, active=True):
-    return {"id": uid, "name": f"U{uid}", "email": f"u{uid}@x.com", "role": "customer",
+def _user(uid, active=True, role="customer"):
+    return {"id": uid, "name": f"U{uid}", "email": f"u{uid}@x.com", "role": role,
             "is_active": active, "delivery_address": "5 Home St", "password_hash": "x"}
 
 
@@ -33,7 +32,7 @@ def cart_env(tmp_path):
     files = {
         "restaurants.json": [_restaurant(1, 2.0), _restaurant(2, 3.0)],
         "menu.json": [_item(1, 1, 10.0), _item(2, 1, 5.0), _item(3, 2, 8.0), _item(4, 1, 7.0, False)],
-        "users.json": [_user(1), _user(2, active=False), _user(3)],
+        "users.json": [_user(1), _user(2, active=False), _user(3), _user(4, role="admin")],
         "carts.json": [],
     }
     for name, content in files.items():
@@ -48,9 +47,19 @@ def cart_env(tmp_path):
 
 
 @pytest.fixture
-def cart_client(cart_env):
-    app.dependency_overrides[get_cart_service] = lambda: CartService(
-        cart_env.cart_repo, cart_env.menu_repo, cart_env.restaurant_repo, cart_env.user_repo)
-    yield TestClient(app)
-    app.dependency_overrides.clear()
-    
+def cart_client(cart_env, monkeypatch):
+    monkeypatch.setenv("CARTS_DATA_PATH", str(cart_env.path / "carts.json"))
+    monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(cart_env.path / "menu.json"))
+    monkeypatch.setenv("RESTAURANTS_DATA_PATH", str(cart_env.path / "restaurants.json"))
+    monkeypatch.setenv("USERS_DATA_PATH", str(cart_env.path / "users.json"))
+    monkeypatch.setenv("AUTH_SECRET_KEY", "cart-test-signing-key-for-local-tests-only")
+    with TestClient(app) as client:
+        yield client
+
+
+@pytest.fixture
+def cart_auth_headers():
+    def headers(customer_id):
+        return {"Authorization": f"Bearer {create_access_token(customer_id)}"}
+
+    return headers

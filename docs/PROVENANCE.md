@@ -143,3 +143,13 @@ Copy this block for each new entry.
 - Influence: After writing the business rules, the LLM helped revise the business rules md file in this project based on the instructions of milestone 2.
 - Validation: The initial draft was compared against the supplied M2 instructions and current restaurant/menu code (the only one we have implemented at the moment). Customer/cart/order interfaces still require team agreement and check since they are still being implemented.
 - PR: Not opened.
+
+#### Active Cart Architecture
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Cart route, repository, service, and API tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Enforce authenticated cart ownership and preserve one active cart per customer under concurrent requests.
+- Influence: Codex added a reusable ownership dependency and moved active-cart lookup, ID allocation, and saving into one repository operation protected by an in-process lock.
+- Validation: Tests exercise authorization and verify that concurrent requests return the same cart ID with one active record in temporary JSON storage.
+- PR: Not opened.
