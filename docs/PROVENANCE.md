@@ -80,6 +80,28 @@ Copy this block for each new entry.
 - Validation: Ran the full pytest suite locally (46 passing), including tests that new and updated restaurants are saved to the data file, that missing restaurants return 404, that invalid input returns 422, and that the 404 responses appear in the OpenAPI docs. All tests use temporary data files, so the committed `data/restaurants.json` is not modified. Manually tested creating a restaurant, updating one, and requesting a missing id (404) through the FastAPI `/docs` page, and reviewed the implementation by walking through the code and explaining how each layer works.
 - PR: #16
 
+### Milestone 2 (Integrated Core System)
+
+#### Entry A6
+- Student(s): Anjana Ratnala
+- Artifact: `app/schemas/order.py`, `app/repositories/order_repository.py`, `app/services/order_service.py`, `app/core/order_config.py`, `data/orders.json`, `tests/orders/`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-03: create and persist a complete order snapshot (customer, restaurant, items, checkout-time prices, total, status) through a new Order Repository.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests that the order stores every required field, is saved to JSON, gets a unique ID, survives a restart, keeps its checkout-time price after a menu price change, and that an empty cart creates no order.
+- PR: #__
+
+#### Entry A7
+- Student(s): Anjana Ratnala
+- Artifact: `app/services/order_service.py` (`finalize_checkout`), `tests/orders/test_checkout_finalize.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-04: save the order first and only then close the cart, leaving the cart unchanged if saving fails.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including a simulated order-save failure that leaves the cart unchanged, a successful checkout that saves the order and closes the cart, rejection of empty or mismatched carts, and a new empty cart after checkout.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti
@@ -193,3 +215,13 @@ Copy this block for each new entry.
 - Influence: Codex resolved merge conflicts, applied ownership checks across the router, and moved cart mutations into one locked repository operation.
 - Validation: API tests cover the combined cart workflow, authorization, invalid menu items, and concurrent item additions.
 - PR: #116
+
+#### Customer Account Deactivation
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer deactivation API, My Account confirmation, checkout finalization, and integration tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Allow customers to deactivate their own account while retaining existing records.
+- Influence: Codex added a status-only user update, connected the confirmation flow, and reused the active-customer rule before checkout saves an order.
+- Validation: Tests verify persisted deactivation, denied profile and cart access, and rejection of checkout finalization while preserving the cart and existing orders.
+- PR: #117

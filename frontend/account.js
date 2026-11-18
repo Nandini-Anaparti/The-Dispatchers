@@ -9,6 +9,8 @@ const addressAction = document.getElementById("address-action");
 const addressFields = document.getElementById("address-fields");
 const addressInputs = Array.from(addressFields.querySelectorAll("input"));
 const saveButton = accountForm.querySelector('button[type="submit"]');
+const deactivationSection = document.getElementById("deactivation-section");
+const deactivateButton = document.getElementById("deactivate-account");
 
 function showAddressFields() {
     const editing = addressAction.value === "update";
@@ -18,7 +20,7 @@ function showAddressFields() {
 
 addressAction.addEventListener("change", showAddressFields);
 
-async function requestProfile(method, changes) {
+async function requestProfile(method, changes, path = "/customers/me") {
     const token = sessionStorage.getItem("access_token");
     if (!token) {
         showSignInRequired();
@@ -29,7 +31,7 @@ async function requestProfile(method, changes) {
     if (changes) {
         headers["Content-Type"] = "application/json";
     }
-    const response = await fetch("/customers/me", {
+    const response = await fetch(path, {
         method,
         headers,
         body: changes ? JSON.stringify(changes) : undefined
@@ -42,17 +44,19 @@ async function requestProfile(method, changes) {
     }
     if (response.status === 403) {
         accountForm.hidden = true;
+        deactivationSection.hidden = true;
         accountError.textContent = "This page is available to customer accounts.";
         return null;
     }
     if (!response.ok) {
         throw new Error("Profile request failed");
     }
-    return response.json();
+    return response.status === 204 ? true : response.json();
 }
 
 function showSignInRequired() {
     accountForm.hidden = true;
+    deactivationSection.hidden = true;
     accountError.textContent = "Sign in to access your profile.";
     accountLogin.hidden = false;
 }
@@ -67,6 +71,7 @@ function displayProfile(profile) {
     addressAction.value = "keep";
     showAddressFields();
     accountForm.hidden = false;
+    deactivationSection.hidden = false;
 }
 
 async function loadProfile() {
@@ -110,6 +115,7 @@ accountForm.addEventListener("submit", async (event) => {
     }
 
     saveButton.disabled = true;
+    deactivateButton.disabled = true;
     profileName.readOnly = true;
     addressAction.disabled = true;
     addressFields.disabled = true;
@@ -126,9 +132,38 @@ accountForm.addEventListener("submit", async (event) => {
         accountError.textContent = "Could not save your profile. Please try again.";
     } finally {
         saveButton.disabled = false;
+        deactivateButton.disabled = false;
         profileName.readOnly = false;
         addressAction.disabled = false;
         showAddressFields();
+    }
+});
+
+deactivateButton.addEventListener("click", async () => {
+    if (!window.confirm("Deactivate your account and sign out?")) {
+        return;
+    }
+
+    deactivateButton.disabled = true;
+    saveButton.disabled = true;
+    accountError.textContent = "";
+    accountStatus.textContent = "Deactivating account…";
+    try {
+        if (await requestProfile("POST", undefined, "/customers/me/deactivate")) {
+            sessionStorage.removeItem("access_token");
+            accountForm.hidden = true;
+            deactivationSection.hidden = true;
+            accountStatus.textContent = "Your account has been deactivated.";
+            await showNavbar();
+        } else {
+            accountStatus.textContent = "";
+        }
+    } catch {
+        accountStatus.textContent = "";
+        accountError.textContent = "Could not deactivate your account. Please try again.";
+    } finally {
+        deactivateButton.disabled = false;
+        saveButton.disabled = false;
     }
 });
 

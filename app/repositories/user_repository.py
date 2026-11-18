@@ -90,3 +90,13 @@ class UserRepository:
                     self.save_all(users)
                     return user
         return None
+
+    def deactivate_customer(self, user_id: int) -> bool:
+        with _user_write_lock:
+            users = self.get_all()
+            for user in users:
+                if user.id == user_id and user.role == "customer" and user.is_active:
+                    user.is_active = False
+                    self.save_all(users)
+                    return True
+        return False

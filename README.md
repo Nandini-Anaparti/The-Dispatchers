@@ -133,6 +133,8 @@ The update body requires `name`. To save a structured `delivery_address`, includ
 
 The API returns `401` for missing or invalid authentication or an inactive account, `403` for an authenticated account with a role other than customer, and `422` for invalid values or fields outside the update contract.
 
+To deactivate an account, select **Deactivate my account** in **My Account** and confirm. The app signs the customer out. `POST /customers/me/deactivate` returns `204 No Content` and marks the account inactive. Existing customer and order records are retained.
+
 User records are stored in `data/users.json` by default. Set `USERS_DATA_PATH` to use a different JSON file. Run the profile tests from the project root with the virtual environment active.
 
 ```bash

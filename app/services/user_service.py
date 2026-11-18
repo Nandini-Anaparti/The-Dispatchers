@@ -32,6 +32,10 @@ class UserService:
             raise CustomerProfileUnavailableError()
         return CustomerProfile.model_validate(user, from_attributes=True)
 
+    def deactivate_customer(self, customer_id: int) -> None:
+        if not self.repository.deactivate_customer(customer_id):
+            raise CustomerProfileUnavailableError()
+
     def register_restaurant_owner(self, data: RestaurantOwnerRegister) -> User:
         return self._register_user(data, "restaurant owner")
 
