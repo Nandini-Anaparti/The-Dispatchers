@@ -123,6 +123,12 @@ Restaurant menu item endpoints are under `/restaurants/{restaurant_id}/menu-item
 
 No API prefix is used. For example, the restaurant list is at http://127.0.0.1:8000/restaurants and the docs are at http://127.0.0.1:8000/docs.
 
+### Customer Order History
+
+Sign in as a customer and select **Orders** in the navigation. Your newest orders appear first. Expand **View order items** to see quantities, the prices saved when the order was placed, and the delivery fee. Order history uses the saved order snapshot, so later menu edits have no effect on past orders.
+
+Run the order retrieval tests with `python -m pytest tests/orders/test_order_retrieval.py -v`.
+
 ## Data and Configuration
 
 Representative restaurant data is stored in:

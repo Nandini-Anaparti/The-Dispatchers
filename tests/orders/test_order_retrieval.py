@@ -1,5 +1,6 @@
 """ORDER-01: retrieve individual orders and customer order history."""
 
+import json
 from datetime import datetime, timedelta, timezone
 
 import pytest
@@ -86,3 +87,26 @@ def test_orders_still_there_after_restart(order_env, priced_cart):
     # A new TestClient builds everything from scratch, like restarting the app
     with TestClient(app) as fresh:
         assert len(fresh.get(URL.format(1), headers=auth(1)).json()) == 1
+
+
+def test_history_displays_saved_order_prices_after_menu_changes(client, order_env, priced_cart):
+    order = place(order_env, priced_cart)[0]
+    menu_path = order_env.path / "menu_items.json"
+    menu = json.loads(menu_path.read_text(encoding="utf-8"))
+    menu[0].update(name="New menu name", price=99.0, is_available=False)
+    menu_path.write_text(json.dumps(menu), encoding="utf-8")
+
+    response = client.get(URL.format(1), headers=auth(1))
+    assert response.status_code == 200
+    assert response.json() == [order.model_dump(mode="json")]
+
+
+def test_order_history_page_serves_its_script(client):
+    page = client.get("/frontend/orders.html")
+    assert page.status_code == 200
+    assert 'id="order-history"' in page.text
+    assert 'src="/frontend/orders.js"' in page.text
+
+    script = client.get("/frontend/orders.js")
+    assert script.status_code == 200
+    assert "javascript" in script.headers["content-type"]

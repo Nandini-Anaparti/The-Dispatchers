@@ -195,3 +195,13 @@ Copy this block for each new entry.
 - Influence: Codex resolved merge conflicts, applied ownership checks across the router, and moved cart mutations into one locked repository operation.
 - Validation: API tests cover the combined cart workflow, authorization, invalid menu items, and concurrent item additions.
 - PR: Not opened.
+
+#### Customer Order History
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer Orders page, navigation, and order retrieval tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Let signed-in customers view their saved orders and item details.
+- Influence: Codex connected the page to the team's existing order API and added a regression test for historical prices after menu changes.
+- Validation: Tests cover authenticated order retrieval, order ownership, history after menu edits, and frontend asset delivery.
+- PR: Not opened.
