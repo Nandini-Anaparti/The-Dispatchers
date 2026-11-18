@@ -26,9 +26,30 @@
                 <input id="email" type="email" readonly>
             </div>
             <div>
-                <label for="address">Delivery address (optional)</label>
-                <input id="address" type="text" autocomplete="street-address">
+                <label for="saved-address">Saved delivery address</label>
+                <input id="saved-address" type="text" readonly>
             </div>
+            <div>
+                <label for="address-action">Delivery address changes</label>
+                <select id="address-action">
+                    <option value="keep">Keep current address</option>
+                    <option value="update">Add or edit address</option>
+                    <option value="clear">Remove saved address</option>
+                </select>
+            </div>
+            <fieldset id="address-fields" hidden disabled>
+                <legend>Delivery address</legend>
+                <label for="street">Street address (include unit if applicable)</label>
+                <input id="street" autocomplete="street-address" required>
+                <label for="city">City</label>
+                <input id="city" autocomplete="address-level2" required>
+                <label for="region">Province, state, or region</label>
+                <input id="region" autocomplete="address-level1" required>
+                <label for="postal_code">Postal code</label>
+                <input id="postal_code" autocomplete="postal-code" required>
+                <label for="country">Country</label>
+                <input id="country" autocomplete="country-name" required>
+            </fieldset>
             <button type="submit">Save changes</button>
         </form>
         <p id="account-status" role="status">Loading your profile…</p>

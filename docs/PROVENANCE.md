@@ -153,3 +153,13 @@ Copy this block for each new entry.
 - Influence: Codex added customer-only endpoints, limited edits to name and delivery address, connected the frontend form, and added regression tests.
 - Validation: All 129 pytest tests passed, including tests for persistence, validation, and account isolation.
 - PR: Not opened.
+
+#### Customer Address
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: My Account address form, customer profile API and persistence, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Let customers manage delivery addresses through My Account.
+- Influence: Codex added structured address validation and preserved the formatted address field used by existing customer records.
+- Validation: All 135 pytest tests passed. The address tests cover adding, updating, retrieving, and rejecting missing or blank fields. Checkout integration is pending the checkout implementation.
+- PR: Not opened.
