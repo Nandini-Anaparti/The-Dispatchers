@@ -1,4 +1,4 @@
-from app.schemas.cart import Cart, CartItem, CartLine, CartView
+from app.schemas.cart import Cart
 from app.services.customer_rules import require_active_customer
 
 
@@ -16,11 +16,7 @@ class CartService:
         self.user_repo = user_repo
 
     def _get_or_create(self, customer_id: int) -> Cart:
-        cart = self.cart_repo.get_active_by_customer(customer_id)
-        if cart is None:
-            next_id = max((c.id for c in self.cart_repo.get_all()), default=0) + 1
-            cart = self.cart_repo.add(Cart(id=next_id, customer_id=customer_id))
-        return cart
+        return self.cart_repo.get_or_create_active(customer_id)
 
     def get_cart(self, customer_id: int) -> Cart:
         require_active_customer(self.user_repo, customer_id)
