@@ -3,7 +3,11 @@
 import json
 
 import pytest
+from fastapi.testclient import TestClient
 
+from app.core.auth import create_access_token
+from app.main import app
+from app.services.customer_rules import CustomerInactiveError
 from app.services.order_service import CartMismatchError, EmptyOrderError, OrderService
 
 
@@ -70,3 +74,20 @@ def test_customer_gets_a_new_empty_cart_after_checkout(order_env, priced_cart):
     new_cart = order_env.cart_repo.get_or_create_active(1)
     assert new_cart.id == 2
     assert new_cart.items == []
+
+
+def test_deactivation_blocks_prevalidated_checkout_and_preserves_orders(order_env, priced_cart):
+    service = OrderService(order_env.order_repo, order_env.cart_repo)
+    cart = order_env.cart_repo.get_active_by_customer(1)
+    existing_order = service.create_order(priced_cart)
+    headers = {"Authorization": f"Bearer {create_access_token(1)}"}
+
+    with TestClient(app) as client:
+        response = client.post("/customers/me/deactivate", headers=headers)
+    assert response.status_code == 204
+
+    with pytest.raises(CustomerInactiveError):
+        service.finalize_checkout(cart, priced_cart)
+
+    assert order_env.order_repo.get_all() == [existing_order]
+    assert order_env.cart_repo.get_active_by_customer(1) == cart

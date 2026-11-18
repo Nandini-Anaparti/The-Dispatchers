@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from app.core.config import get_users_data_path
 from app.core.permissions import require_customer
 from app.repositories.user_repository import UserRepository
@@ -58,8 +58,25 @@ def update_customer_profile(
     try:
         return service.update_customer_profile(current_user.id, data)
     except CustomerProfileUnavailableError as exc:
-        raise HTTPException(
-            status_code=401,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from exc
+        raise customer_profile_unavailable() from exc
+
+
+@router.post("/me/deactivate", status_code=204, responses=PROFILE_ERRORS)
+def deactivate_customer(
+    current_user: UserInDB = Depends(require_customer),
+    service: UserService = Depends(get_user_service),
+) -> Response:
+    """Deactivate the signed-in customer's account while retaining its record."""
+    try:
+        service.deactivate_customer(current_user.id)
+    except CustomerProfileUnavailableError as exc:
+        raise customer_profile_unavailable() from exc
+    return Response(status_code=204)
+
+
+def customer_profile_unavailable() -> HTTPException:
+    return HTTPException(
+        status_code=401,
+        detail="Not authenticated",
+        headers={"WWW-Authenticate": "Bearer"},
+    )

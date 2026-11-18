@@ -10,8 +10,11 @@ If saving the order fails, the cart is left exactly as it was.
 
 from datetime import datetime, timezone
 
+from app.core.config import get_users_data_path
+from app.repositories.user_repository import UserRepository
 from app.schemas.cart import Cart, CartView
 from app.schemas.order import Order, OrderItem
+from app.services.customer_rules import require_active_customer
 
 
 class EmptyOrderError(Exception): pass
@@ -19,9 +22,10 @@ class CartMismatchError(Exception): pass
 
 
 class OrderService:
-    def __init__(self, order_repo, cart_repo=None, now=None):
+    def __init__(self, order_repo, cart_repo=None, now=None, *, user_repo=None):
         self.order_repo = order_repo
         self.cart_repo = cart_repo
+        self.user_repo = user_repo
         self.now = now or (lambda: datetime.now(timezone.utc))
 
     def create_order(self, priced_cart: CartView) -> Order:
@@ -49,6 +53,9 @@ class OrderService:
     def finalize_checkout(self, cart: Cart, priced_cart: CartView) -> Order:
         if cart.id != priced_cart.id or cart.customer_id != priced_cart.customer_id:
             raise CartMismatchError()
+
+        user_repo = self.user_repo if self.user_repo is not None else UserRepository(get_users_data_path())
+        require_active_customer(user_repo, cart.customer_id)
 
         # 1. Save the order. If this raises, we stop here and the cart is untouched.
         order = self.create_order(priced_cart)

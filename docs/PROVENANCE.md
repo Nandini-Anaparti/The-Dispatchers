@@ -195,6 +195,16 @@ Copy this block for each new entry.
 - Validation: All 135 pytest tests passed. The address tests cover adding, updating, retrieving, and rejecting missing or blank fields. Checkout integration is pending the checkout implementation.
 - PR: Not opened.
 
+#### Customer Account Deactivation
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer deactivation API, My Account confirmation, checkout finalization, and integration tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Allow customers to deactivate their own account while retaining existing records.
+- Influence: Codex added a status-only user update, connected the confirmation flow, and reused the active-customer rule before checkout saves an order.
+- Validation: Tests verify persisted deactivation, denied profile and cart access, and rejection of checkout finalization while preserving the cart and existing orders.
+- PR: Not opened.
+
 #### Cart Integration
 - Student(s): Domenica Vizcaino Andrade
 - Artifact: Cart routes, service, repository, and API tests

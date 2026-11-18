@@ -178,4 +178,53 @@ def test_account_page_serves_form_and_script(client):
 
     script = client.get("/frontend/account.js")
     assert script.status_code == 200
-    assert 'fetch("/customers/me"' in script.text
+    assert 'path = "/customers/me"' in script.text
+    assert 'id="deactivate-account"' in response.text
+    assert "window.confirm(" in script.text
+
+
+def test_customer_can_deactivate_and_loses_account_and_cart_access(profile_client, monkeypatch):
+    client, users_path = profile_client
+    monkeypatch.setenv("CARTS_DATA_PATH", str(users_path.with_name("carts.json")))
+    carts_path = users_path.with_name("carts.json")
+    carts_path.write_text("[]", encoding="utf-8")
+    credentials = {"email": "deactivate@example.com", "password": "test-password-123"}
+    registered = client.post(
+        "/customers", json=credentials | {"name": "Customer", "delivery_address": "12 Main St"}
+    )
+    assert registered.status_code == 201
+    customer_id = registered.json()["id"]
+    login = client.post("/auth/login", json=credentials)
+    assert login.status_code == 200
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    before = json.loads(users_path.read_text(encoding="utf-8"))
+
+    response = client.post(f"{PROFILE_URL}/deactivate", headers=headers)
+    assert response.status_code == 204
+    assert response.content == b""
+    stored = json.loads(users_path.read_text(encoding="utf-8"))
+    assert stored == [user | {"is_active": False} if user["id"] == customer_id else user
+                      for user in before]
+
+    assert client.post("/auth/login", json=credentials).status_code == 401
+    assert client.get("/auth/me", headers=headers).status_code == 401
+    assert client.get(PROFILE_URL, headers=headers).status_code == 401
+    assert client.put(PROFILE_URL, json=CHANGES, headers=headers).status_code == 401
+    assert client.post(f"{PROFILE_URL}/deactivate", headers=headers).status_code == 401
+
+    cart = f"/customers/{customer_id}/cart"
+    assert client.get(cart, headers=headers).status_code == 401
+    assert client.post(f"{cart}/items", json={"menu_item_id": 1}, headers=headers).status_code == 401
+    assert client.put(f"{cart}/items/1", json={"quantity": 2}, headers=headers).status_code == 401
+    assert client.delete(f"{cart}/items/1", headers=headers).status_code == 401
+    assert client.delete(cart, headers=headers).status_code == 401
+    assert json.loads(carts_path.read_text(encoding="utf-8")) == []
+
+
+def test_only_authenticated_customers_can_deactivate_their_own_account(profile_client):
+    client, users_path = profile_client
+    before = users_path.read_bytes()
+    assert client.post(f"{PROFILE_URL}/deactivate").status_code == 401
+    assert client.post(f"{PROFILE_URL}/deactivate", headers=auth_headers(3)).status_code == 403
+    assert client.post("/customers/2/deactivate", headers=auth_headers(1)).status_code == 404
+    assert users_path.read_bytes() == before
