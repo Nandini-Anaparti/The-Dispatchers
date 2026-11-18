@@ -120,7 +120,7 @@ No API prefix is used. For example, the restaurant list is at http://127.0.0.1:8
 
 ### Customer Profile
 
-Set `AUTH_SECRET_KEY` in the backend process environment before starting the app. Sign in as a customer and select **My Account** in the navigation. Edit your name or delivery address and select **Save changes**. Clear the address field to remove the saved address. Your sign-in email is read-only.
+Set `AUTH_SECRET_KEY` in the backend process environment before starting the app. Sign in as a customer and select **My Account** in the navigation. To enter or change your delivery address, select **Add or edit address**, fill in the required fields, and select **Save changes**. Choose **Remove saved address** to clear it. Your sign-in email is read-only.
 
 For API requests, obtain an access token from `POST /auth/login` and send it in the `Authorization: Bearer <access_token>` header. Both profile endpoints use the account identified by the token.
 
@@ -129,7 +129,7 @@ For API requests, obtain an access token from `POST /auth/login` and send it in 
 | `GET /customers/me` | `200 OK` with the signed-in customer's profile |
 | `PUT /customers/me` | `200 OK` with the updated profile after saving it to JSON |
 
-The update body includes both `name` and `delivery_address`. For example, send `{"name": "Sam Lee", "delivery_address": null}` to update the name and clear the address. Responses exclude passwords, password hashes, and tokens.
+The update body requires `name`. To save a structured `delivery_address`, include `street`, `city`, `region`, `postal_code`, and `country`. Omit `delivery_address` to keep the current address or send `null` to remove it. Responses include the formatted address and its structured details when available. Existing single-string addresses remain supported. Responses exclude passwords, password hashes, and tokens.
 
 The API returns `401` for missing or invalid authentication or an inactive account, `403` for an authenticated account with a role other than customer, and `422` for invalid values or fields outside the update contract.
 

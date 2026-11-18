@@ -7,6 +7,13 @@ from app.core.auth import create_access_token
 
 PROFILE_URL = "/customers/me"
 CHANGES = {"name": "Updated Customer", "delivery_address": "12 Main St"}
+ADDRESS = {
+    "street": " 24 Oak St, Unit 3 ",
+    "city": "Vancouver",
+    "region": "BC",
+    "postal_code": "V6T 1Z4",
+    "country": "Canada",
+}
 
 
 @pytest.fixture
@@ -19,6 +26,7 @@ def profile_client(client, tmp_path, monkeypatch):
             "role": role,
             "is_active": active,
             "delivery_address": None,
+            "delivery_address_details": None,
             "password_hash": "stored-test-hash",
             "restaurant_ids": [],
         }
@@ -53,6 +61,7 @@ def test_customer_can_retrieve_only_their_profile(profile_client):
         "role": "customer",
         "is_active": True,
         "delivery_address": None,
+        "delivery_address_details": None,
     }
 
 
@@ -77,6 +86,46 @@ def test_profile_update_persists_without_changing_other_accounts(profile_client)
     response = client.put(PROFILE_URL, json=CHANGES | {"delivery_address": None}, headers=headers)
     assert response.status_code == 200
     assert client.get(PROFILE_URL, headers=headers).json()["delivery_address"] is None
+
+
+def test_customer_can_add_update_and_retrieve_delivery_address(profile_client):
+    client, users_path = profile_client
+    headers = auth_headers(1)
+    assert client.get(PROFILE_URL, headers=headers).json()["delivery_address"] is None
+
+    response = client.put(PROFILE_URL, headers=headers, json=CHANGES | {"delivery_address": ADDRESS})
+    assert response.status_code == 200
+    assert response.json()["delivery_address"] == "24 Oak St, Unit 3, Vancouver, BC V6T 1Z4, Canada"
+    assert response.json()["delivery_address_details"] == ADDRESS | {"street": "24 Oak St, Unit 3"}
+
+    updated = ADDRESS | {"street": "56 Pine St"}
+    response = client.put(PROFILE_URL, headers=headers, json=CHANGES | {"delivery_address": updated})
+    assert response.status_code == 200
+    assert client.get(PROFILE_URL, headers=headers).json() == response.json()
+    assert client.get(PROFILE_URL, headers=auth_headers(2)).json()["delivery_address"] is None
+
+    stored = json.loads(users_path.read_text(encoding="utf-8"))[0]
+    assert stored["delivery_address"] == "56 Pine St, Vancouver, BC V6T 1Z4, Canada"
+    assert stored["delivery_address_details"] == updated
+
+    response = client.put(PROFILE_URL, headers=headers, json={"name": "New Name"})
+    assert response.status_code == 200
+    assert response.json()["delivery_address_details"] == updated
+
+
+@pytest.mark.parametrize("field", ADDRESS)
+def test_customer_address_rejects_missing_or_blank_required_fields(profile_client, field):
+    client, users_path = profile_client
+    headers = auth_headers(1)
+    before = users_path.read_bytes()
+    missing = {key: value for key, value in ADDRESS.items() if key != field}
+
+    for address in (missing, ADDRESS | {field: "   "}):
+        response = client.put(
+            PROFILE_URL, headers=headers, json=CHANGES | {"delivery_address": address}
+        )
+        assert response.status_code == 422
+        assert users_path.read_bytes() == before
 
 
 @pytest.mark.parametrize("invalid_fields", [

@@ -1,7 +1,7 @@
 import json
 from pathlib import Path
 from threading import Lock
-from app.schemas.user import UserInDB
+from app.schemas.user import CustomerProfileUpdate, DeliveryAddress, UserInDB
 
 _user_write_lock = Lock()
 
@@ -72,14 +72,21 @@ class UserRepository:
         raise ValueError("User not found")
 
     def update_customer_profile(
-        self, user_id: int, *, name: str, delivery_address: str | None
+        self, user_id: int, data: CustomerProfileUpdate
     ) -> UserInDB | None:
         with _user_write_lock:
             users = self.get_all()
             for user in users:
                 if user.id == user_id and user.role == "customer" and user.is_active:
-                    user.name = name
-                    user.delivery_address = delivery_address
+                    user.name = data.name
+                    if "delivery_address" in data.model_fields_set:
+                        address = data.delivery_address
+                        if isinstance(address, DeliveryAddress):
+                            user.delivery_address = address.formatted()
+                            user.delivery_address_details = address
+                        else:
+                            user.delivery_address = address
+                            user.delivery_address_details = None
                     self.save_all(users)
                     return user
         return None

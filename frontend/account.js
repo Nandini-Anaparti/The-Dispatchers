@@ -4,8 +4,19 @@ const accountError = document.getElementById("account-error");
 const accountLogin = document.getElementById("account-login");
 const profileName = document.getElementById("name");
 const profileEmail = document.getElementById("email");
-const profileAddress = document.getElementById("address");
+const savedAddress = document.getElementById("saved-address");
+const addressAction = document.getElementById("address-action");
+const addressFields = document.getElementById("address-fields");
+const addressInputs = Array.from(addressFields.querySelectorAll("input"));
 const saveButton = accountForm.querySelector('button[type="submit"]');
+
+function showAddressFields() {
+    const editing = addressAction.value === "update";
+    addressFields.hidden = !editing;
+    addressFields.disabled = !editing;
+}
+
+addressAction.addEventListener("change", showAddressFields);
 
 async function requestProfile(method, changes) {
     const token = sessionStorage.getItem("access_token");
@@ -49,7 +60,12 @@ function showSignInRequired() {
 function displayProfile(profile) {
     profileName.value = profile.name;
     profileEmail.value = profile.email;
-    profileAddress.value = profile.delivery_address ?? "";
+    savedAddress.value = profile.delivery_address ?? "No address saved";
+    for (const input of addressInputs) {
+        input.value = profile.delivery_address_details?.[input.id] ?? "";
+    }
+    addressAction.value = "keep";
+    showAddressFields();
     accountForm.hidden = false;
 }
 
@@ -78,15 +94,28 @@ accountForm.addEventListener("submit", async (event) => {
         return;
     }
 
+    const changes = { name };
+    if (addressAction.value === "update") {
+        const blank = addressInputs.find(input => !input.value.trim());
+        if (blank) {
+            accountError.textContent = "Enter all delivery address fields.";
+            blank.focus();
+            return;
+        }
+        changes.delivery_address = Object.fromEntries(
+            addressInputs.map(input => [input.id, input.value.trim()])
+        );
+    } else if (addressAction.value === "clear") {
+        changes.delivery_address = null;
+    }
+
     saveButton.disabled = true;
     profileName.readOnly = true;
-    profileAddress.readOnly = true;
+    addressAction.disabled = true;
+    addressFields.disabled = true;
     accountStatus.textContent = "Saving changes…";
     try {
-        const profile = await requestProfile("PUT", {
-            name,
-            delivery_address: profileAddress.value.trim() || null
-        });
+        const profile = await requestProfile("PUT", changes);
         accountStatus.textContent = "";
         if (profile) {
             displayProfile(profile);
@@ -98,7 +127,8 @@ accountForm.addEventListener("submit", async (event) => {
     } finally {
         saveButton.disabled = false;
         profileName.readOnly = false;
-        profileAddress.readOnly = false;
+        addressAction.disabled = false;
+        showAddressFields();
     }
 });
 

@@ -154,6 +154,16 @@ Copy this block for each new entry.
 - Validation: All 129 pytest tests passed, including tests for persistence, validation, and account isolation.
 - PR: #103
 
+#### Customer Address
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: My Account address form, customer profile API and persistence, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Let customers manage delivery addresses through My Account.
+- Influence: Codex added structured address validation and preserved the formatted address field used by existing customer records.
+- Validation: All 135 pytest tests passed. The address tests cover adding, updating, retrieving, and rejecting missing or blank fields. Checkout integration is pending the checkout implementation.
+- PR: #107
+
 #### Entry D2
 - Student(s): Domenica Vizcaino Andrade
 - Artifact: `app/api/routes/menu_items.py`, `tests/test_role_auth.py`
