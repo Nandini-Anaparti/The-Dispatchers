@@ -92,6 +92,16 @@ Copy this block for each new entry.
 - Validation: Ran the full pytest suite locally, including tests that the order stores every required field, is saved to JSON, gets a unique ID, survives a restart, keeps its checkout-time price after a menu price change, and that an empty cart creates no order.
 - PR: #__
 
+#### Entry A7
+- Student(s): Anjana Ratnala
+- Artifact: `app/services/order_service.py` (`finalize_checkout`), `tests/orders/test_checkout_finalize.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-04: save the order first and only then close the cart, leaving the cart unchanged if saving fails.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including a simulated order-save failure that leaves the cart unchanged, a successful checkout that saves the order and closes the cart, rejection of empty or mismatched carts, and a new empty cart after checkout.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti
