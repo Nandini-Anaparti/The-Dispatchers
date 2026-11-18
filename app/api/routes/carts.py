@@ -29,3 +29,7 @@ def update_item(customer_id: int, menu_item_id: int, body: CartItemUpdate,
 def remove_item(customer_id: int, menu_item_id: int, service: CartService = Depends(get_cart_service)):
     return call(lambda: service.remove_item(customer_id, menu_item_id))
 
+
+@router.delete("", response_model=CartView, summary="Clear the cart", responses=ERROR_DOCS)
+def clear_cart(customer_id: int, service: CartService = Depends(get_cart_service)):
+    return call(lambda: service.clear_cart(customer_id))

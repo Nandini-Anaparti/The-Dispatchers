@@ -89,3 +89,11 @@ class CartService:
         self.cart_repo.update(cart)
         return self.build_view(cart)
 
+    def clear_cart(self, customer_id: int) -> CartView:
+        require_active_customer(self.user_repo, customer_id)
+        cart = self._get_or_create(customer_id)
+        cart.items = []
+        cart.restaurant_id = None
+        self.cart_repo.update(cart)
+        return self.build_view(cart)
+    
