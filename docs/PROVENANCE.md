@@ -143,3 +143,13 @@ Copy this block for each new entry.
 - Influence: After writing the business rules, the LLM helped revise the business rules md file in this project based on the instructions of milestone 2.
 - Validation: The initial draft was compared against the supplied M2 instructions and current restaurant/menu code (the only one we have implemented at the moment). Customer/cart/order interfaces still require team agreement and check since they are still being implemented.
 - PR: Not opened.
+
+#### Customer Profile
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer profile API, JSON persistence, My Account page, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Implement profile retrieval and updates for signed-in customers.
+- Influence: Codex added customer-only endpoints, limited edits to name and delivery address, connected the frontend form, and added regression tests.
+- Validation: All 129 pytest tests passed, including tests for persistence, validation, and account isolation.
+- PR: Not opened.

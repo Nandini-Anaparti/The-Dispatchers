@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account | The Dispatchers</title>
+    <link rel="stylesheet" href="/frontend/styles.css">
+    <script src="/frontend/navbar.js" defer></script>
+    <script src="/frontend/account.js" defer></script>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">The Dispatchers</a>
+    </header>
+    <nav id="site-nav" aria-label="Main navigation"></nav>
+    <main>
+        <h1>My Account</h1>
+        <form id="account-form" class="search-controls"
+              style="flex-direction: column; align-items: stretch; max-width: 480px;" hidden>
+            <div>
+                <label for="name">Name</label>
+                <input id="name" type="text" autocomplete="name" required>
+            </div>
+            <div>
+                <label for="email">Sign-in email</label>
+                <input id="email" type="email" readonly>
+            </div>
+            <div>
+                <label for="address">Delivery address (optional)</label>
+                <input id="address" type="text" autocomplete="street-address">
+            </div>
+            <button type="submit">Save changes</button>
+        </form>
+        <p id="account-status" role="status">Loading your profile…</p>
+        <p id="account-error" class="error" role="alert"></p>
+        <a id="account-login" href="/frontend/login.html" hidden>Sign in</a>
+    </main>
+</body>
+</html>

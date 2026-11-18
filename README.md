@@ -83,8 +83,7 @@ Start the application:
 
 ```bash
 python -m uvicorn app.main:app --reload
-
-Note: now instead of starting the application and returning a message saying the application is running, the webpage will load.
+```
 
 Open http://127.0.0.1:8000/ in your browser.
 
@@ -120,6 +119,27 @@ Example filter: `/restaurants?cuisine=italian&is_open=true` returns open Italian
 Restaurant menu item endpoints are under `/restaurants/{restaurant_id}/menu-items`. See `/docs` for the full list.
 
 No API prefix is used. For example, the restaurant list is at http://127.0.0.1:8000/restaurants and the docs are at http://127.0.0.1:8000/docs.
+
+### Customer Profile
+
+Set `AUTH_SECRET_KEY` in the backend process environment before starting the app. Sign in as a customer and select **My Account** in the navigation. Edit your name or delivery address and select **Save changes**. Clear the address field to remove the saved address. Your sign-in email is read-only.
+
+For API requests, obtain an access token from `POST /auth/login` and send it in the `Authorization: Bearer <access_token>` header. Both profile endpoints use the account identified by the token.
+
+| Endpoint | Successful response |
+|----------|---------------------|
+| `GET /customers/me` | `200 OK` with the signed-in customer's profile |
+| `PUT /customers/me` | `200 OK` with the updated profile after saving it to JSON |
+
+The update body includes both `name` and `delivery_address`. For example, send `{"name": "Sam Lee", "delivery_address": null}` to update the name and clear the address. Responses exclude passwords, password hashes, and tokens.
+
+The API returns `401` for missing or invalid authentication or an inactive account, `403` for an authenticated account with a role other than customer, and `422` for invalid values or fields outside the update contract.
+
+User records are stored in `data/users.json` by default. Set `USERS_DATA_PATH` to use a different JSON file. Run the profile tests from the project root with the virtual environment active.
+
+```bash
+python -m pytest tests/test_customer_profile.py -v
+```
 
 ## Data and Configuration
 

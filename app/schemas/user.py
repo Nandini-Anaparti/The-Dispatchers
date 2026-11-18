@@ -22,6 +22,12 @@ class CustomerRegister(AccountRegister):
 class RestaurantOwnerRegister(AccountRegister):
     model_config = ConfigDict(extra="forbid")
 
+class CustomerProfileUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
+
+    name: str = Field(min_length=1)
+    delivery_address: str | None = Field(min_length=1)
+
 class User(BaseModel):
     id: int
     name: str
