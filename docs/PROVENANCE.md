@@ -153,3 +153,13 @@ Copy this block for each new entry.
 - Influence: Codex added a reusable ownership dependency and moved active-cart lookup, ID allocation, and saving into one repository operation protected by an in-process lock.
 - Validation: Tests exercise authorization and verify that concurrent requests return the same cart ID with one active record in temporary JSON storage.
 - PR: Not opened.
+
+#### Cart Integration
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Cart routes, service, repository, and API tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Integrate the cart branches with the ownership and persistence changes already on main.
+- Influence: Codex resolved merge conflicts, applied ownership checks across the router, and moved cart mutations into one locked repository operation.
+- Validation: API tests cover the combined cart workflow, authorization, invalid menu items, and concurrent item additions.
+- PR: Not opened.

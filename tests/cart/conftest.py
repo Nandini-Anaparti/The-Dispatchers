@@ -63,3 +63,9 @@ def cart_auth_headers():
         return {"Authorization": f"Bearer {create_access_token(customer_id)}"}
 
     return headers
+
+
+@pytest.fixture
+def signed_in_cart_client(cart_client, cart_auth_headers):
+    cart_client.headers.update(cart_auth_headers(1))
+    return cart_client

@@ -1,4 +1,5 @@
 import json
+from collections.abc import Callable
 from pathlib import Path
 from threading import RLock
 
@@ -38,9 +39,30 @@ class CartRepository:
             if existing is not None:
                 return existing
 
-            next_id = max((cart.id for cart in carts), default=0) + 1
-            cart = Cart(id=next_id, customer_id=customer_id)
+            cart = self._new_active(carts, customer_id)
             carts.append(cart)
+            self.save_all(carts)
+            return cart
+
+    @staticmethod
+    def _new_active(carts: list[Cart], customer_id: int) -> Cart:
+        next_id = max((cart.id for cart in carts), default=0) + 1
+        return Cart(id=next_id, customer_id=customer_id)
+
+    def mutate_active(
+        self, customer_id: int, change: Callable[[Cart], None], *, create: bool = False
+    ) -> Cart | None:
+        """Apply a change to the latest active cart and save only on success."""
+        with _cart_file_lock:
+            carts = self.get_all()
+            cart = self._find_active(carts, customer_id)
+            if cart is None:
+                if not create:
+                    return None
+                cart = self._new_active(carts, customer_id)
+                carts.append(cart)
+
+            change(cart)
             self.save_all(carts)
             return cart
 
