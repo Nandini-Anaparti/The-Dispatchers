@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.schemas.menu_item import MenuItem, MenuItemCreate, MenuItemUpdate
-from app.core.permissions import require_restaurant_access
+from app.core.permissions import RestaurantId, require_restaurant_access
 from app.services.menu_item_service import (
     MenuItemService,
     MenuItemNotFoundError,
@@ -17,6 +19,13 @@ router = APIRouter(
     prefix="/restaurants/{restaurant_id}/menu-items",
     tags=["menu-items"]
 )
+MenuItemId = Annotated[int, Path(description="ID of the menu item within the restaurant")]
+RESTAURANT_NOT_FOUND = {404: {"description": "Restaurant not found"}}
+ITEM_NOT_FOUND = {404: {"description": "Restaurant or active menu item not found in this restaurant"}}
+MANAGEMENT_ERRORS = {
+    401: {"description": "Missing, invalid, or expired token, or inactive account"},
+    403: {"description": "Permission to manage this restaurant is required"},
+}
 
 def get_menu_service():
     menu_repo = MenuItemRepository(get_menu_items_data_path())
@@ -25,15 +34,15 @@ def get_menu_service():
     return MenuItemService(menu_repo, restaurant_repo)
 
 
-@router.get("", response_model=list[MenuItem])
+@router.get("", response_model=list[MenuItem], responses=RESTAURANT_NOT_FOUND)
 def get_menu_items(
-    restaurant_id: int,
-    name: str | None = None,
-    max_price: float | None = None,
-    is_available: bool | None = None,
+    restaurant_id: RestaurantId,
+    name: Annotated[str | None, Query(description="Case-insensitive partial item name")] = None,
+    max_price: Annotated[float | None, Query(description="Maximum item price, inclusive and nonnegative")] = None,
+    is_available: Annotated[bool | None, Query(description="Filter by current item availability")] = None,
     service: MenuItemService = Depends(get_menu_service)
 ):
-    """Get all menu items from a restaurant, with optional filters."""
+    """List active menu items publicly. A negative maximum price returns 422."""
     if max_price is not None and max_price < 0:
         raise HTTPException(
             status_code=422,
@@ -57,11 +66,13 @@ def get_menu_items(
     "/manage",
     response_model=list[MenuItem],
     dependencies=[Depends(require_restaurant_access)],
+    responses={**MANAGEMENT_ERRORS, **RESTAURANT_NOT_FOUND},
 )
 def get_managed_menu_items(
-    restaurant_id: int,
+    restaurant_id: RestaurantId,
     service: MenuItemService = Depends(get_menu_service)
 ):
+    """List a managed restaurant's menu items, including deactivated items."""
     try:
         return service.get_menu_items(
             restaurant_id,
@@ -74,13 +85,13 @@ def get_managed_menu_items(
             detail="Restaurant not found"
         )
 
-@router.get("/{item_id}", response_model=MenuItem)
+@router.get("/{item_id}", response_model=MenuItem, responses=ITEM_NOT_FOUND)
 def get_menu_item(
-    restaurant_id: int,
-    item_id: int,
+    restaurant_id: RestaurantId,
+    item_id: MenuItemId,
     service: MenuItemService = Depends(get_menu_service)
 ):
-    """Get a specific menu item."""
+    """Return an active menu item for the specified restaurant."""
     try:
         return service.get_menu_item(restaurant_id, item_id)
     except RestaurantNotFoundError:
@@ -94,9 +105,10 @@ def get_menu_item(
     response_model=MenuItem,
     status_code=201,
     dependencies=[Depends(require_restaurant_access)],
+    responses={**MANAGEMENT_ERRORS, **RESTAURANT_NOT_FOUND},
 )
 def add_menu_item(
-    restaurant_id: int,
+    restaurant_id: RestaurantId,
     item: MenuItemCreate,
     service: MenuItemService = Depends(get_menu_service)
 ):
@@ -110,10 +122,11 @@ def add_menu_item(
     "/{item_id}",
     response_model=MenuItem,
     dependencies=[Depends(require_restaurant_access)],
+    responses={**MANAGEMENT_ERRORS, **ITEM_NOT_FOUND},
 )
 def update_menu_item(
-    restaurant_id: int,
-    item_id: int,
+    restaurant_id: RestaurantId,
+    item_id: MenuItemId,
     item: MenuItemUpdate,
     service: MenuItemService = Depends(get_menu_service)
 ):
@@ -129,12 +142,14 @@ def update_menu_item(
     "/{item_id}/deactivate",
     response_model=MenuItem,
     dependencies=[Depends(require_restaurant_access)],
+    responses={**MANAGEMENT_ERRORS, **ITEM_NOT_FOUND},
 )
 def deactivate_menu_item(
-    restaurant_id: int,
-    item_id: int,
+    restaurant_id: RestaurantId,
+    item_id: MenuItemId,
     service: MenuItemService = Depends(get_menu_service)
 ):
+    """Mark an active menu item inactive and unavailable."""
     try:
         return service.deactivate_menu_item(restaurant_id, item_id)
 

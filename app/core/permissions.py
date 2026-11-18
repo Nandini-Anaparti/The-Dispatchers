@@ -1,6 +1,10 @@
-from fastapi import Depends, HTTPException
+from typing import Annotated
+
+from fastapi import Depends, HTTPException, Path
 from app.core.auth import get_current_user
 from app.schemas.user import UserInDB
+
+RestaurantId = Annotated[int, Path(description="ID of the restaurant")]
 
 def require_customer(current_user: UserInDB = Depends(get_current_user)) -> UserInDB:
     if current_user.role != "customer":
@@ -18,7 +22,7 @@ def require_admin(current_user: UserInDB = Depends(get_current_user)):
     return current_user
 
 def require_restaurant_access(
-    restaurant_id: int,
+    restaurant_id: RestaurantId,
     current_user: UserInDB = Depends(get_current_user)
 ):
     if current_user.role == "admin":

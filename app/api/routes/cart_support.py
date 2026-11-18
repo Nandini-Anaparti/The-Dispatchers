@@ -1,4 +1,6 @@
-from fastapi import Depends, HTTPException
+from typing import Annotated
+
+from fastapi import Depends, HTTPException, Path
 
 from app.core.auth import get_current_user
 from app.core.cart_config import get_carts_data_path
@@ -16,6 +18,7 @@ from app.services.cart_service import (
 )
 from app.services.customer_rules import CustomerNotFoundError, CustomerInactiveError
 
+CustomerId = Annotated[int, Path(description="ID of the signed-in customer who owns the cart")]
 ERRORS = {
     CustomerNotFoundError: (404, "Customer not found"),
     CustomerInactiveError: (403, "Customer account is deactivated"),
@@ -27,14 +30,14 @@ ERRORS = {
 
 ERROR_DOCS = {
     401: {"description": "Missing or invalid authentication, or inactive account"},
-    403: {"description": "Cart access is limited to its customer"},
+    403: {"description": "Cart access requires its customer to be active and signed in"},
     404: {"description": "Customer, menu item, or cart entry not found"},
     409: {"description": "Unavailable item, or item from a different restaurant"},
 }
 
 
 def require_cart_owner(
-    customer_id: int, current_user: UserInDB = Depends(get_current_user)
+    customer_id: CustomerId, current_user: UserInDB = Depends(get_current_user)
 ) -> UserInDB:
     if current_user.role != "customer" or current_user.id != customer_id:
         raise HTTPException(status_code=403, detail="You can only access your own cart")

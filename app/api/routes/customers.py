@@ -33,6 +33,7 @@ def register_customer(
     data: CustomerRegister,
     service: UserService = Depends(get_user_service)
 ):
+    """Register a customer account with an email, password, and optional delivery address."""
     try:
         return service.register_customer(data)
     except EmailAlreadyRegisteredError:

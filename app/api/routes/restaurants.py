@@ -6,10 +6,15 @@ from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.restaurant import Restaurant, RestaurantCreate, RestaurantUpdate
 from app.services.restaurant_service import RestaurantNotFoundError, RestaurantService
-from app.core.permissions import require_restaurant_creator, require_restaurant_access
+from app.core.permissions import RestaurantId, require_restaurant_creator, require_restaurant_access
 from app.schemas.user import UserInDB
 
 router = APIRouter(prefix="/restaurants", tags=["restaurants"])
+AUTH_REQUIRED = {401: {"description": "Missing, invalid, or expired token, or inactive account"}}
+OWNER_OR_ADMIN = {
+    **AUTH_REQUIRED,
+    403: {"description": "Restaurant owner or administrator access required"},
+}
 
 # Shared description of the 404 error so it shows up in the OpenAPI docs.
 NOT_FOUND_RESPONSE = {
@@ -47,11 +52,12 @@ def list_restaurants(
     """
     return service.list_restaurants(name=name, cuisine=cuisine, is_open=is_open, min_rating=min_rating)
 
-@router.get("/mine", response_model=list[Restaurant])
+@router.get("/mine", response_model=list[Restaurant], responses=OWNER_OR_ADMIN)
 def get_my_restaurants(
     current_user: UserInDB = Depends(require_restaurant_creator),
     service: RestaurantService = Depends(get_restaurant_service)
 ):
+    """List assigned restaurants for the signed-in owner, or all restaurants for an administrator."""
     restaurants = service.list_restaurants()
 
     if current_user.role == "admin":
@@ -68,7 +74,7 @@ def get_my_restaurants(
     summary="Get one restaurant",
     responses=NOT_FOUND_RESPONSE,
 )
-def get_restaurant(restaurant_id: int, service: RestaurantService = Depends(get_restaurant_service)):
+def get_restaurant(restaurant_id: RestaurantId, service: RestaurantService = Depends(get_restaurant_service)):
     """Return one restaurant by id, or 404 if it does not exist."""
     try:
         return service.get_restaurant(restaurant_id)
@@ -77,7 +83,10 @@ def get_restaurant(restaurant_id: int, service: RestaurantService = Depends(get_
 
 
 
-@router.post("", response_model=Restaurant, status_code=201, summary="Create a restaurant")
+@router.post(
+    "", response_model=Restaurant, status_code=201, summary="Create a restaurant",
+    responses=OWNER_OR_ADMIN,
+)
 def create_restaurant(
     data: RestaurantCreate,
     current_user: UserInDB = Depends(require_restaurant_creator),
@@ -99,10 +108,14 @@ def create_restaurant(
     "/{restaurant_id}",
     response_model=Restaurant,
     summary="Update a restaurant",
-    responses=NOT_FOUND_RESPONSE,
+    responses={
+        **AUTH_REQUIRED,
+        403: {"description": "Permission to manage this restaurant is required"},
+        **NOT_FOUND_RESPONSE,
+    },
 )
 def update_restaurant(
-    restaurant_id: int,
+    restaurant_id: RestaurantId,
     changes: RestaurantUpdate,
     current_user: UserInDB = Depends(require_restaurant_access),
     service: RestaurantService = Depends(get_restaurant_service),

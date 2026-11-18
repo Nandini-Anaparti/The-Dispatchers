@@ -1,6 +1,8 @@
 """HTTP layer for ORDER-01: customers retrieve their own orders."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Path
 
 from app.core.auth import get_current_user
 from app.core.config import get_users_data_path
@@ -12,9 +14,11 @@ from app.schemas.user import UserInDB
 from app.services.customer_rules import CustomerInactiveError, CustomerNotFoundError
 from app.services.order_service import OrderNotFoundError, OrderService
 
+CustomerId = Annotated[int, Path(description="ID of the signed-in customer who owns the orders")]
+OrderId = Annotated[int, Path(description="ID of a saved order belonging to this customer")]
 
 def require_order_owner(
-    customer_id: int, current_user: UserInDB = Depends(get_current_user)
+    customer_id: CustomerId, current_user: UserInDB = Depends(get_current_user)
 ) -> UserInDB:
     if current_user.role != "customer" or current_user.id != customer_id:
         raise HTTPException(status_code=403, detail="You can only view your own orders")
@@ -57,11 +61,13 @@ def call(action):
 
 @router.get("", response_model=list[Order], responses=RESPONSES,
             summary="Your order history (newest first)")
-def list_orders(customer_id: int, service: OrderService = Depends(get_order_service)):
+def list_orders(customer_id: CustomerId, service: OrderService = Depends(get_order_service)):
+    """Return the customer's saved orders newest first, or an empty list if they have no orders."""
     return call(lambda: service.list_orders(customer_id))
 
 
 @router.get("/{order_id}", response_model=Order, responses=RESPONSES,
             summary="One of your orders")
-def get_order(customer_id: int, order_id: int, service: OrderService = Depends(get_order_service)):
+def get_order(customer_id: CustomerId, order_id: OrderId, service: OrderService = Depends(get_order_service)):
+    """Return a saved order with its checkout-time prices. A missing order or one owned by another customer returns 404."""
     return call(lambda: service.get_order(customer_id, order_id))

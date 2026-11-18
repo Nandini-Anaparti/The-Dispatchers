@@ -236,6 +236,16 @@ Copy this block for each new entry.
 - Validation: Tests cover authenticated order retrieval, order ownership, history after menu edits, and frontend asset delivery.
 - PR: #118
 
+#### API Documentation
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: FastAPI route metadata and `tests/test_openapi.py`
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Bring the generated OpenAPI contract in line with the Milestone 2 requirements.
+- Influence: Codex documented existing error responses, operations, and parameters and added schema regression checks.
+- Validation: The OpenAPI tests check descriptions, success response schemas, and expected client errors.
+- PR: Not opened.
+
 #### Customer Account Deactivation
 - Student(s): Domenica Vizcaino Andrade
 - Artifact: Customer deactivation API, My Account confirmation, checkout finalization, and integration tests

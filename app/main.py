@@ -7,6 +7,7 @@ from app.api.routes.restaurant_owners import router as restaurant_owners_router
 from app.api.routes.carts import router as carts_router
 from app.api.routes.orders import router as orders_router
 from pathlib import Path
+from typing import TypedDict, Literal
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -35,6 +36,11 @@ app.include_router(orders_router)
 def root():
     return FileResponse(FRONTEND_DIR / "index.html")
 
+class HealthResponse(TypedDict):
+    status: Literal["ok"]
+
+
 @app.get("/health")
-def health_check():
+def health_check() -> HealthResponse:
+    """Report that the API is running."""
     return {"status": "ok"}
