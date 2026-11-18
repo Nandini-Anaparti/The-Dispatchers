@@ -172,3 +172,13 @@ Copy this block for each new entry.
 - Influence: Codex added structured address validation and preserved the formatted address field used by existing customer records.
 - Validation: All 135 pytest tests passed. The address tests cover adding, updating, retrieving, and rejecting missing or blank fields. Checkout integration is pending the checkout implementation.
 - PR: Not opened.
+
+#### Cart Integration
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Cart routes, service, repository, and API tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Integrate the cart branches with the ownership and persistence changes already on main.
+- Influence: Codex resolved merge conflicts, applied ownership checks across the router, and moved cart mutations into one locked repository operation.
+- Validation: API tests cover the combined cart workflow, authorization, invalid menu items, and concurrent item additions.
+- PR: Not opened.
