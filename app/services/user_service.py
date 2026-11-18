@@ -4,6 +4,7 @@ from argon2.exceptions import VerificationError, InvalidHashError
 from app.schemas.user import (
     AccountRegister,
     CustomerRegister,
+    CustomerProfileUpdate,
     RestaurantOwnerRegister,
     User,
     UserInDB
@@ -13,6 +14,9 @@ from app.repositories.user_repository import UserRepository
 class EmailAlreadyRegisteredError(Exception):
     pass
 
+class CustomerProfileUnavailableError(Exception):
+    pass
+
 class UserService:
     def __init__(self, repository: UserRepository):
         self.repository = repository
@@ -20,6 +24,14 @@ class UserService:
 
     def register_customer(self, data: CustomerRegister) -> User:
         return self._register_user(data, "customer", data.delivery_address)
+
+    def update_customer_profile(self, customer_id: int, data: CustomerProfileUpdate) -> User:
+        user = self.repository.update_customer_profile(
+            customer_id, name=data.name, delivery_address=data.delivery_address
+        )
+        if user is None:
+            raise CustomerProfileUnavailableError()
+        return User.model_validate(user, from_attributes=True)
 
     def register_restaurant_owner(self, data: RestaurantOwnerRegister) -> User:
         return self._register_user(data, "restaurant owner")

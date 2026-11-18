@@ -2,6 +2,12 @@ from fastapi import Depends, HTTPException
 from app.core.auth import get_current_user
 from app.schemas.user import UserInDB
 
+def require_customer(current_user: UserInDB = Depends(get_current_user)) -> UserInDB:
+    if current_user.role != "customer":
+        raise HTTPException(status_code=403, detail="Customer access required")
+
+    return current_user
+
 def require_admin(current_user: UserInDB = Depends(get_current_user)):
     if current_user.role != "admin":
         raise HTTPException(

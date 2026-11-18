@@ -142,7 +142,17 @@ Copy this block for each new entry.
 - Purpose: Help check the cross-subsystem business-rule plan against the Milestone 2 instructions to make sure everything is covered.
 - Influence: After writing the business rules, the LLM helped revise the business rules md file in this project based on the instructions of milestone 2.
 - Validation: The initial draft was compared against the supplied M2 instructions and current restaurant/menu code (the only one we have implemented at the moment). Customer/cart/order interfaces still require team agreement and check since they are still being implemented.
-- PR: Not opened.
+- PR: #51
+
+#### Customer Profile
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer profile API, JSON persistence, My Account page, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Implement profile retrieval and updates for signed-in customers.
+- Influence: Codex added customer-only endpoints, limited edits to name and delivery address, connected the frontend form, and added regression tests.
+- Validation: All 129 pytest tests passed, including tests for persistence, validation, and account isolation.
+- PR: #103
 
 #### Entry D2
 - Student(s): Domenica Vizcaino Andrade
@@ -162,7 +172,7 @@ Copy this block for each new entry.
 - Purpose: Enforce authenticated cart ownership and preserve one active cart per customer under concurrent requests.
 - Influence: Codex added a reusable ownership dependency and moved active-cart lookup, ID allocation, and saving into one repository operation protected by an in-process lock.
 - Validation: Tests exercise authorization and verify that concurrent requests return the same cart ID with one active record in temporary JSON storage.
-- PR: Not opened.
+- PR: #110
 
 #### Cart Integration
 - Student(s): Domenica Vizcaino Andrade
@@ -172,4 +182,4 @@ Copy this block for each new entry.
 - Purpose: Integrate the cart branches with the ownership and persistence changes already on main.
 - Influence: Codex resolved merge conflicts, applied ownership checks across the router, and moved cart mutations into one locked repository operation.
 - Validation: API tests cover the combined cart workflow, authorization, invalid menu items, and concurrent item additions.
-- PR: Not opened.
+- PR: #116
