@@ -244,7 +244,7 @@ Copy this block for each new entry.
 - Purpose: Bring the generated OpenAPI contract in line with the Milestone 2 requirements.
 - Influence: Codex documented existing error responses, operations, and parameters and added schema regression checks.
 - Validation: The OpenAPI tests check descriptions, success response schemas, and expected client errors.
-- PR: Not opened.
+- PR: #119.
 
 #### Customer Account Deactivation
 - Student(s): Domenica Vizcaino Andrade
