@@ -83,8 +83,7 @@ Start the application:
 
 ```bash
 python -m uvicorn app.main:app --reload
-
-Note: now instead of starting the application and returning a message saying the application is running, the webpage will load.
+```
 
 Open http://127.0.0.1:8000/ in your browser.
 
@@ -117,9 +116,62 @@ Tests in `tests/test_frontend.py` verify that the page and static assets are ser
 
 Example filter: `/restaurants?cuisine=italian&is_open=true` returns open Italian restaurants.
 
-Restaurant menu item endpoints are under `/restaurants/{restaurant_id}/menu-items`. See `/docs` for the full list.
-
 No API prefix is used. For example, the restaurant list is at http://127.0.0.1:8000/restaurants and the docs are at http://127.0.0.1:8000/docs.
+
+### Menu API
+
+All paths below are relative to `/restaurants/{restaurant_id}/menu-items`.
+
+| Method | Path suffix | Access | Operation |
+|--------|-------------|--------|-----------|
+| `GET` | Base path | Public | List active menu items. Optional filters are `name`, `max_price`, and `is_available`. |
+| `GET` | `/{item_id}` | Public | Get an active menu item. |
+| `GET` | `/manage` | Menu management | List menu items, including deactivated items. |
+| `POST` | Base path | Menu management | Create a menu item. |
+| `PUT` | `/{item_id}` | Menu management | Update a menu item. |
+| `PATCH` | `/{item_id}/deactivate` | Menu management | Deactivate a menu item. |
+
+Menu management requires an `Authorization: Bearer <access_token>` header. Restaurant owners can manage their assigned restaurants, and admins can manage any restaurant. Customers can use the public endpoints.
+
+#### HTTP status codes
+
+| Code | Meaning for the Menu API |
+|------|-------------------------|
+| `200 OK` | The API returned the requested menu data, updated an item, or deactivated an item. |
+| `201 Created` | The API created a menu item and returned it. |
+| `401 Unauthorized` | The protected endpoint received a missing, invalid, or expired bearer token. |
+| `403 Forbidden` | The user authenticated successfully but lacks permission to manage the restaurant. |
+| `404 Not Found` | The restaurant or item could not be found. This also applies when the item belongs to a different restaurant than the one in the URL. |
+| `422 Unprocessable Content` | The request failed validation, for example because the item price was zero or negative. |
+
+#### Request examples
+
+Browse restaurant `1` without credentials.
+
+```powershell
+Invoke-RestMethod 'http://127.0.0.1:8000/restaurants/1/menu-items'
+```
+
+For local authentication, set `AUTH_SECRET_KEY` in the environment that runs the backend before starting it. Send the account's email and password to `POST /auth/login` and copy the `access_token` from the response. Use a restaurant ID your account can manage when creating an item.
+
+```powershell
+$headers = @{ Authorization = 'Bearer <access_token>' }
+$item = @{
+    name = 'Tomato Pasta'
+    description = 'Pasta with tomato sauce'
+    price = 12.99
+    is_available = $true
+} | ConvertTo-Json
+
+Invoke-RestMethod 'http://127.0.0.1:8000/restaurants/1/menu-items' `
+    -Method Post -Headers $headers -ContentType 'application/json' -Body $item
+```
+
+Run the role authorization tests from the project root with the virtual environment active.
+
+```bash
+python -m pytest tests/test_role_auth.py -q
+```
 
 ## Data and Configuration
 

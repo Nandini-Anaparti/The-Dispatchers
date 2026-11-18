@@ -143,3 +143,13 @@ Copy this block for each new entry.
 - Influence: After writing the business rules, the LLM helped revise the business rules md file in this project based on the instructions of milestone 2.
 - Validation: The initial draft was compared against the supplied M2 instructions and current restaurant/menu code (the only one we have implemented at the moment). Customer/cart/order interfaces still require team agreement and check since they are still being implemented.
 - PR: Not opened.
+
+#### Entry D2
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: `app/api/routes/menu_items.py`, `tests/test_role_auth.py`
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Make the existing menu management authorization dependency explicit and extend API regression coverage.
+- Influence: Codex moved the shared permission check to the route decorators and added coverage for invalid bearer tokens, mismatched restaurant and item IDs, and public item detail access.
+- Validation: API tests exercise the routes using temporary JSON data and check that rejected writes leave the menu data intact.
+- PR: Not opened.
