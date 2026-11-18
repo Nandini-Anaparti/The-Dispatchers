@@ -102,6 +102,16 @@ Copy this block for each new entry.
 - Validation: Ran the full pytest suite locally, including a simulated order-save failure that leaves the cart unchanged, a successful checkout that saves the order and closes the cart, rejection of empty or mismatched carts, and a new empty cart after checkout.
 - PR: #__
 
+#### Entry A8
+- Student(s): Anjana Ratnala
+- Artifact: `app/api/routes/orders.py`, `app/services/order_service.py` (`list_orders`, `get_order`), `app/main.py`, `tests/orders/test_order_retrieval.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-01: let customers retrieve one order and their order history.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests for item/price/total/status in the response, newest-first history, 404 for missing and other customers' orders, 401/403 access rules, and orders still being there after a restart. Manually tried the endpoints through the FastAPI `/docs` page.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti
@@ -215,6 +225,16 @@ Copy this block for each new entry.
 - Influence: Codex resolved merge conflicts, applied ownership checks across the router, and moved cart mutations into one locked repository operation.
 - Validation: API tests cover the combined cart workflow, authorization, invalid menu items, and concurrent item additions.
 - PR: #116
+
+#### Customer Order History
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer Orders page, navigation, and order retrieval tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Let signed-in customers view their saved orders and item details.
+- Influence: Codex connected the page to the team's existing order API and added a regression test for historical prices after menu changes.
+- Validation: Tests cover authenticated order retrieval, order ownership, history after menu edits, and frontend asset delivery.
+- PR: #118
 
 #### Customer Account Deactivation
 - Student(s): Domenica Vizcaino Andrade

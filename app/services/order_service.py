@@ -6,6 +6,8 @@ which produce a CartView with current prices and the backend total.
 
 CHECKOUT-04: finalize_checkout() saves the order FIRST and only then closes the cart.
 If saving the order fails, the cart is left exactly as it was.
+
+ORDER-01: get_order() and list_orders() let a customer see their own orders.
 """
 
 from datetime import datetime, timezone
@@ -19,6 +21,7 @@ from app.services.customer_rules import require_active_customer
 
 class EmptyOrderError(Exception): pass
 class CartMismatchError(Exception): pass
+class OrderNotFoundError(Exception): pass
 
 
 class OrderService:
@@ -63,4 +66,17 @@ class OrderService:
         # 2. Only now close the cart, so the customer never loses items on a failed checkout.
         closed = cart.model_copy(update={"status": "checked_out"})
         self.cart_repo.update(closed)
+        return order
+
+    def list_orders(self, customer_id: int) -> list[Order]:
+        require_active_customer(self.user_repo, customer_id)
+        orders = self.order_repo.get_by_customer(customer_id)
+        return sorted(orders, key=lambda o: (o.created_at, o.id), reverse=True)  # newest first
+
+    def get_order(self, customer_id: int, order_id: int) -> Order:
+        require_active_customer(self.user_repo, customer_id)
+        order = self.order_repo.get_by_id(order_id)
+        # Another customer's order looks "not found", so IDs can't be probed.
+        if order is None or order.customer_id != customer_id:
+            raise OrderNotFoundError()
         return order

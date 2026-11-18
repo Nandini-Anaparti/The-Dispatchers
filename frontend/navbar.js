@@ -10,7 +10,7 @@ const pages = [
     { name: "My Account", url: "/frontend/account.html", ready: true, roles: ["customer"] },
     { name: "Cart", url: "/frontend/cart.html", ready: false, roles: ["customer"] },
     { name: "Checkout", url: "/frontend/checkout.html", ready: false, roles: ["customer"] },
-    { name: "Orders", url: "/frontend/orders.html", ready: false, roles: ["customer"] },
+    { name: "Orders", url: "/frontend/orders.html", ready: true, roles: ["customer"] },
     { name: "Reviews", url: "/frontend/reviews.html", ready: false, roles: ["customer"] }
 ];
 
