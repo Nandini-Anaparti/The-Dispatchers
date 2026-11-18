@@ -75,6 +75,22 @@ def test_noncustomer_cannot_create_cart(cart_client, cart_env, cart_auth_headers
     assert cart_env.cart_repo.get_all() == []
 
 
+@pytest.mark.parametrize(("method", "suffix", "body"), [
+    ("POST", "/items", {"menu_item_id": 1}),
+    ("PUT", "/items/1", {"quantity": 2}),
+    ("DELETE", "/items/1", None),
+    ("DELETE", "", None),
+])
+def test_cart_mutations_require_authentication_and_ownership(
+    cart_client, cart_env, cart_auth_headers, method, suffix, body
+):
+    path = f"/customers/1/cart{suffix}"
+    assert cart_client.request(method, path, json=body).status_code == 401
+    response = cart_client.request(method, path, json=body, headers=cart_auth_headers(3))
+    assert response.status_code == 403
+    assert cart_env.cart_repo.get_all() == []
+
+
 def test_concurrent_requests_return_one_active_cart(cart_client, cart_env, cart_auth_headers):
     headers = cart_auth_headers(1)
     ready = Barrier(2, timeout=5)
