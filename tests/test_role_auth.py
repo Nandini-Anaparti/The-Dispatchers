@@ -132,6 +132,34 @@ def test_public_browsing(role_client):
     assert client.get(
         "/restaurants/1/menu-items"
     ).status_code == 200
+    assert client.get("/restaurants/1/menu-items/1").status_code == 200
+
+
+def test_menu_writes_reject_invalid_bearer_token(role_client):
+    client, _, _, menu_path = role_client
+    original_menu = menu_path.read_bytes()
+    headers = {"Authorization": "Bearer invalid-token"}
+
+    responses = (
+        client.post("/restaurants/1/menu-items", json=NEW_MENU_ITEM, headers=headers),
+        client.put("/restaurants/1/menu-items/1", json=NEW_MENU_ITEM, headers=headers),
+        client.patch("/restaurants/1/menu-items/1/deactivate", headers=headers),
+    )
+    for response in responses:
+        assert response.status_code == 401
+        assert response.headers["WWW-Authenticate"] == "Bearer"
+    assert menu_path.read_bytes() == original_menu
+
+
+def test_owner_cannot_modify_foreign_item_under_assigned_restaurant(role_client):
+    client, _, _, menu_path = role_client
+    original_menu = menu_path.read_bytes()
+    headers = auth_headers(2)
+
+    item_url = "/restaurants/1/menu-items/2"
+    assert client.put(item_url, json=NEW_MENU_ITEM, headers=headers).status_code == 404
+    assert client.patch(f"{item_url}/deactivate", headers=headers).status_code == 404
+    assert menu_path.read_bytes() == original_menu
 
 def test_unauthenticated_requests(role_client):
     client, _, _, _ = role_client
