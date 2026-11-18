@@ -264,4 +264,4 @@ Copy this block for each new entry.
 - Purpose: Validate the current customer, cart, restaurant, and menu before order placement.
 - Influence: Codex added a read-only validation step and integration tests for successful validation and rejected checkout attempts.
 - Validation: Tests verify current menu data is used and that validation leaves cart and order files unchanged.
-- PR: Not opened.
+- PR: #120.
