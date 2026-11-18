@@ -10,11 +10,15 @@ router = APIRouter(
     tags=["authentication"]
 )
 
-@router.post("/login", response_model=TokenResponse)
+@router.post(
+    "/login", response_model=TokenResponse,
+    responses={401: {"description": "Invalid credentials or inactive account"}},
+)
 def login(
     data: LoginRequest,
     service: UserService = Depends(get_user_service)
 ):
+    """Sign in with an email and password to obtain a bearer token."""
     user = service.authenticate_user(
         str(data.email),
         data.password
@@ -30,8 +34,12 @@ def login(
 
     return TokenResponse(access_token=token)
 
-@router.get("/me", response_model=User)
+@router.get(
+    "/me", response_model=User,
+    responses={401: {"description": "Missing, invalid, or expired token, or inactive account"}},
+)
 def get_me(
     current_user: UserInDB = Depends(get_current_user)
 ):
+    """Return the public account fields for the user identified by the bearer token."""
     return current_user

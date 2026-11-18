@@ -21,6 +21,7 @@ def register_restaurant_owner(
     data: RestaurantOwnerRegister,
     service: UserService = Depends(get_user_service)
 ):
+    """Register a restaurant owner account with an email and password."""
     try:
         return service.register_restaurant_owner(data)
 
