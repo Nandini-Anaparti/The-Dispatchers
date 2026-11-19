@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Restaurant Owner Registration | The Dispatchers</title>
+
+    <link rel="stylesheet" href="/frontend/styles.css">
+    <script src="/frontend/navbar.js" defer></script>
+    <script src="/frontend/owner-register.js" defer></script>
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="/">The Dispatchers</a>
+        <span>Restaurant owner registration</span>
+    </header>
+
+    <nav id="site-nav" aria-label="Main navigation"></nav>
+
+    <main>
+        <a href="/frontend/register.html">&larr; Back to registration</a>
+
+        <h1>Register as a Restaurant Owner</h1>
+        <p>Create an account to add and manage your restaurant.</p>
+
+        <form id="owner-register-form"
+              class="search-controls"
+              style="flex-direction: column; align-items: stretch; max-width: 480px;">
+
+            <div>
+                <label for="name">Name</label>
+                <input id="name" type="text" autocomplete="name" required>
+            </div>
+
+            <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" autocomplete="email" required>
+            </div>
+
+            <div>
+                <label for="password">Password</label>
+                <input id="password" type="password"
+                       autocomplete="new-password"
+                       minlength="8" required>
+            </div>
+
+            <button type="submit">Create Owner Account</button>
+        </form>
+
+        <p id="owner-registration-success" role="status"></p>
+        <p id="owner-registration-error" class="error" role="alert"></p>
+
+        <p id="owner-next-step" hidden>
+            <a href="/frontend/login.html">Log in</a>
+            to register your restaurant.
+        </p>
+
+        <p>
+            Looking to order food instead?
+            <a href="/frontend/register.html">Register as a customer</a>
+        </p>
+    </main>
+</body>
+</html>

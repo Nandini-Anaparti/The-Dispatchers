@@ -12,9 +12,14 @@
         <a class="brand" href="/">The Dispatchers</a>
         <span>Restaurant management</span>
     </header>
+
     <nav id="site-nav" aria-label="Main navigation"></nav>
 
-    <main>
+    <p id="access-message" role="status" style="padding: 24px;">
+        Checking account permissions...
+    </p>
+
+    <main id="manage-content" hidden>
         <section>
             <a href="/">&larr; Back to restaurants</a>
             <h1>Manage Restaurants</h1>
@@ -25,6 +30,15 @@
                 <label for="restaurant-select">Pick a restaurant to edit</label>
                 <select id="restaurant-select"></select>
             </div>
+
+            <p>
+                <a id="manage-menu-link"
+                   href="/frontend/menu-management.html"
+                   hidden>
+                    Manage Menu for This Restaurant
+                </a>
+            </p>
+
         </section>
 
         <section>
@@ -42,84 +56,218 @@
     </main>
 
     <script>
-                    const $ = id => document.getElementById(id);
-                    let restaurantId = null; // null = create new, number = edit that restaurant
+            const $ = id => document.getElementById(id);
+            let restaurantId = null;
 
-                    function showError(msg)   { $("error").textContent = msg; $("success").textContent = ""; }
-                    function showSuccess(msg) { $("success").textContent = msg; $("error").textContent = ""; }
+            function showError(msg) {
+                $("error").textContent = msg;
+                $("success").textContent = "";
+            }
 
-                    // Turns a failed response into readable text (404 message or 422 field errors)
-                    async function errorMessage(res) {
-                      try {
-                        const body = await res.json();
-                        if (typeof body.detail === "string") return body.detail;
-                        if (Array.isArray(body.detail))
-                          return body.detail.map(d => d.loc.join(".") + ": " + d.msg).join("; ");
-                      } catch (e) {}
-                      return "Request failed (" + res.status + ")";
+            function showSuccess(msg) {
+                $("success").textContent = msg;
+                $("error").textContent = "";
+            }
+
+            async function errorMessage(res) {
+                try {
+                    const body = await res.json();
+
+                    if (typeof body.detail === "string") {
+                        return body.detail;
                     }
 
-                    async function api(method, path, body) {
-                      const options = { method: method };
-                      if (body) {
-                        options.headers = { "Content-Type": "application/json" };
-                        options.body = JSON.stringify(body);
-                      }
-                      const res = await fetch(path, options);
-                      if (!res.ok) throw new Error(await errorMessage(res));
-                      return res.json();
+                    if (Array.isArray(body.detail)) {
+                        return body.detail.map(
+                            d => d.loc.join(".") + ": " + d.msg
+                        ).join("; ");
                     }
+                } catch (error) {
+                    console.error(error);
+                }
 
-                    async function loadDropdown(selectedId) {
-                      const select = $("restaurant-select");
-                      select.replaceChildren(new Option("-- New restaurant --", ""));
-                      const restaurants = await api("GET", "/restaurants");
-                      restaurants.forEach(r => select.add(new Option(r.id + ": " + r.name, r.id)));
-                      select.value = selectedId || "";
-                    }
+                return "Request failed (" + res.status + ")";
+            }
 
-                    function fillForm(r) {
-                      $("r-name").value = r ? r.name : "";
-                      $("r-cuisine").value = r ? r.cuisine : "";
-                      $("r-rating").value = r ? r.rating : "";
-                      $("r-time").value = r ? r.delivery_time_minutes : "";
-                      $("r-fee").value = r ? r.delivery_fee : "";
-                      $("r-address").value = r ? r.address : "";
-                      $("r-open").checked = r ? r.is_open : true;
-                      $("r-submit").textContent = r ? "Update restaurant" : "Create restaurant";
-                    }
+            async function api(method, path, body) {
+                const options = {
+                    method: method,
+                    headers: {}
+                };
 
-                    $("restaurant-select").addEventListener("change", async e => {
-                      restaurantId = e.target.value ? Number(e.target.value) : null;
-                      try {
-                        fillForm(restaurantId ? await api("GET", "/restaurants/" + restaurantId) : null);
-                        $("error").textContent = "";
-                        $("success").textContent = "";
-                      } catch (err) { showError(err.message); }
+                const token = sessionStorage.getItem("access_token");
+
+                if (token) {
+                    options.headers["Authorization"] = "Bearer " + token;
+                }
+
+                if (body) {
+                    options.headers["Content-Type"] = "application/json";
+                    options.body = JSON.stringify(body);
+                }
+
+                const res = await fetch(path, options);
+
+                if (!res.ok) {
+                    throw new Error(await errorMessage(res));
+                }
+
+                return res.json();
+            }
+
+            async function loadDropdown(selectedId) {
+                const select = $("restaurant-select");
+
+                select.replaceChildren(
+                    new Option("-- New restaurant --", "")
+                );
+
+                const restaurants = await api("GET", "/restaurants/mine");
+
+                restaurants.forEach(restaurant => {
+                    select.add(new Option(
+                        restaurant.id + ": " + restaurant.name,
+                        restaurant.id
+                    ));
+                });
+
+                select.value = selectedId ? String(selectedId) : "";
+            }
+
+            function fillForm(restaurant) {
+                $("r-name").value = restaurant ? restaurant.name : "";
+                $("r-cuisine").value = restaurant ? restaurant.cuisine : "";
+                $("r-rating").value = restaurant ? restaurant.rating : "";
+                $("r-time").value = restaurant
+                    ? restaurant.delivery_time_minutes : "";
+                $("r-fee").value = restaurant ? restaurant.delivery_fee : "";
+                $("r-address").value = restaurant ? restaurant.address : "";
+                $("r-open").checked = restaurant ? restaurant.is_open : true;
+
+                $("r-submit").textContent = restaurant
+                    ? "Update restaurant"
+                    : "Create restaurant";
+            }
+
+            function updateMenuLink() {
+                const link = $("manage-menu-link");
+
+                link.hidden = !restaurantId;
+
+                if (restaurantId) {
+                    link.href =
+                        "/frontend/menu-management.html?restaurant_id=" +
+                        restaurantId;
+                }
+            }
+
+            $("restaurant-select").addEventListener("change", async event => {
+                restaurantId = event.target.value
+                    ? Number(event.target.value)
+                    : null;
+
+                updateMenuLink();
+
+                try {
+                    const restaurant = restaurantId
+                        ? await api("GET", "/restaurants/" + restaurantId)
+                        : null;
+
+                    fillForm(restaurant);
+                    $("error").textContent = "";
+                    $("success").textContent = "";
+
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+
+            $("restaurant-form").addEventListener("submit", async event => {
+                event.preventDefault();
+
+                const body = {
+                    name: $("r-name").value.trim(),
+                    cuisine: $("r-cuisine").value.trim(),
+                    rating: Number($("r-rating").value),
+                    delivery_time_minutes: Number($("r-time").value),
+                    delivery_fee: Number($("r-fee").value),
+                    address: $("r-address").value.trim(),
+                    is_open: $("r-open").checked
+                };
+
+                try {
+                    const saved = restaurantId
+                        ? await api("PUT", "/restaurants/" + restaurantId, body)
+                        : await api("POST", "/restaurants", body);
+
+                    restaurantId = saved.id;
+
+                    updateMenuLink();
+
+                    await loadDropdown(saved.id);
+                    fillForm(saved);
+
+                    showSuccess(
+                        'Saved "' + saved.name + '" (id ' + saved.id + ")."
+                    );
+
+                } catch (error) {
+                    showError(error.message);
+                }
+            });
+
+            async function checkAccess() {
+                const token = sessionStorage.getItem("access_token");
+
+                if (!token) {
+                    $("access-message").textContent =
+                        "Please log in as a restaurant owner or admin.";
+                    return;
+                }
+
+                try {
+                    const response = await fetch("/auth/me", {
+                        headers: {
+                            "Authorization": "Bearer " + token
+                        }
                     });
 
-                    $("restaurant-form").addEventListener("submit", async e => {
-                      e.preventDefault();
-                      const body = {
-                        name: $("r-name").value.trim(),
-                        cuisine: $("r-cuisine").value.trim(),
-                        rating: Number($("r-rating").value),
-                        delivery_time_minutes: Number($("r-time").value),
-                        delivery_fee: Number($("r-fee").value),
-                        address: $("r-address").value.trim(),
-                        is_open: $("r-open").checked,
-                      };
-                      try {
-                        const saved = restaurantId
-                          ? await api("PUT", "/restaurants/" + restaurantId, body)
-                          : await api("POST", "/restaurants", body);
-                        restaurantId = saved.id;
-                        await loadDropdown(saved.id);
-                        showSuccess('Saved "' + saved.name + '" (id ' + saved.id + ").");
-                      } catch (err) { showError(err.message); }
-                    });
+                    if (response.status === 401) {
+                        sessionStorage.removeItem("access_token");
 
-                    loadDropdown().catch(err => showError("Could not load restaurants: " + err.message));
+                        $("access-message").textContent =
+                            "Your login has expired. Please log in again.";
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        $("access-message").textContent =
+                            "Could not check your account permissions.";
+                        return;
+                    }
+
+                    const user = await response.json();
+
+                    if (user.role !== "restaurant owner" &&
+                        user.role !== "admin") {
+                        $("access-message").textContent =
+                            "You do not have permission to manage restaurants.";
+                        return;
+                    }
+
+                    await loadDropdown();
+
+                    $("access-message").hidden = true;
+                    $("manage-content").hidden = false;
+
+                } catch (error) {
+                    $("access-message").textContent =
+                        "Could not load the restaurant management page.";
+                    console.error(error);
+                }
+            }
+
+            checkAccess();
     </script>
 </body>
 </html>

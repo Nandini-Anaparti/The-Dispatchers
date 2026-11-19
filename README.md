@@ -83,8 +83,7 @@ Start the application:
 
 ```bash
 python -m uvicorn app.main:app --reload
-
-Note: now instead of starting the application and returning a message saying the application is running, the webpage will load.
+```
 
 Open http://127.0.0.1:8000/ in your browser.
 
@@ -113,13 +112,103 @@ Tests in `tests/test_frontend.py` verify that the page and static assets are ser
 | GET | `/restaurants/{restaurant_id}` | Returns one restaurant, or `404` if the id does not exist |
 | POST | `/restaurants` | Creates a restaurant (server assigns the id). Returns `201`, or `422` if the body is invalid |
 | PUT | `/restaurants/{restaurant_id}` | Updates only the fields sent. Returns `404` if the id does not exist, or `422` if a field is invalid |
+| GET | `/customers/{customer_id}/orders` | Your order history, newest first (customer token, own account only) |
+| GET | `/customers/{customer_id}/orders/{order_id}` | One of your orders. `404` if it does not exist or is not yours |
 | GET | `/docs` | Interactive OpenAPI (Swagger) documentation |
 
 Example filter: `/restaurants?cuisine=italian&is_open=true` returns open Italian restaurants.
 
-Restaurant menu item endpoints are under `/restaurants/{restaurant_id}/menu-items`. See `/docs` for the full list.
-
 No API prefix is used. For example, the restaurant list is at http://127.0.0.1:8000/restaurants and the docs are at http://127.0.0.1:8000/docs.
+
+### Customer Order History
+
+Sign in as a customer and select **Orders** in the navigation. Your newest orders appear first. Expand **View order items** to see quantities, the prices saved when the order was placed, and the delivery fee. Order history uses the saved order snapshot, so later menu edits have no effect on past orders.
+
+Run the order retrieval tests with `python -m pytest tests/orders/test_order_retrieval.py -v`.
+
+### Customer Profile
+
+Set `AUTH_SECRET_KEY` in the backend process environment before starting the app. Sign in as a customer and select **My Account** in the navigation. To enter or change your delivery address, select **Add or edit address**, fill in the required fields, and select **Save changes**. Choose **Remove saved address** to clear it. Your sign-in email is read-only.
+
+For API requests, obtain an access token from `POST /auth/login` and send it in the `Authorization: Bearer <access_token>` header. Both profile endpoints use the account identified by the token.
+
+| Endpoint | Successful response |
+|----------|---------------------|
+| `GET /customers/me` | `200 OK` with the signed-in customer's profile |
+| `PUT /customers/me` | `200 OK` with the updated profile after saving it to JSON |
+
+The update body requires `name`. To save a structured `delivery_address`, include `street`, `city`, `region`, `postal_code`, and `country`. Omit `delivery_address` to keep the current address or send `null` to remove it. Responses include the formatted address and its structured details when available. Existing single-string addresses remain supported. Responses exclude passwords, password hashes, and tokens.
+
+The API returns `401` for missing or invalid authentication or an inactive account, `403` for an authenticated account with a role other than customer, and `422` for invalid values or fields outside the update contract.
+
+To deactivate an account, select **Deactivate my account** in **My Account** and confirm. The app signs the customer out. `POST /customers/me/deactivate` returns `204 No Content` and marks the account inactive. Existing customer and order records are retained.
+
+User records are stored in `data/users.json` by default. Set `USERS_DATA_PATH` to use a different JSON file. Run the profile tests from the project root with the virtual environment active.
+
+```bash
+python -m pytest tests/test_customer_profile.py -v
+```
+
+### Menu API
+
+All paths below are relative to `/restaurants/{restaurant_id}/menu-items`.
+
+| Method | Path suffix | Access | Operation |
+|--------|-------------|--------|-----------|
+| `GET` | Base path | Public | List active menu items. Optional filters are `name`, `max_price`, and `is_available`. |
+| `GET` | `/{item_id}` | Public | Get an active menu item. |
+| `GET` | `/manage` | Menu management | List menu items, including deactivated items. |
+| `POST` | Base path | Menu management | Create a menu item. |
+| `PUT` | `/{item_id}` | Menu management | Update a menu item. |
+| `PATCH` | `/{item_id}/deactivate` | Menu management | Deactivate a menu item. |
+
+Menu management requires an `Authorization: Bearer <access_token>` header. Restaurant owners can manage their assigned restaurants, and admins can manage any restaurant. Customers can use the public endpoints.
+
+#### HTTP status codes
+
+| Code | Meaning for the Menu API |
+|------|-------------------------|
+| `200 OK` | The API returned the requested menu data, updated an item, or deactivated an item. |
+| `201 Created` | The API created a menu item and returned it. |
+| `401 Unauthorized` | The protected endpoint received a missing, invalid, or expired bearer token. |
+| `403 Forbidden` | The user authenticated successfully but lacks permission to manage the restaurant. |
+| `404 Not Found` | The restaurant or item could not be found. This also applies when the item belongs to a different restaurant than the one in the URL. |
+| `422 Unprocessable Content` | The request failed validation, for example because the item price was zero or negative. |
+
+#### Request examples
+
+Browse restaurant `1` without credentials.
+
+```powershell
+Invoke-RestMethod 'http://127.0.0.1:8000/restaurants/1/menu-items'
+```
+
+For local authentication, set `AUTH_SECRET_KEY` in the environment that runs the backend before starting it. Send the account's email and password to `POST /auth/login` and copy the `access_token` from the response. Use a restaurant ID your account can manage when creating an item.
+
+```powershell
+$headers = @{ Authorization = 'Bearer <access_token>' }
+$item = @{
+    name = 'Tomato Pasta'
+    description = 'Pasta with tomato sauce'
+    price = 12.99
+    is_available = $true
+} | ConvertTo-Json
+
+Invoke-RestMethod 'http://127.0.0.1:8000/restaurants/1/menu-items' `
+    -Method Post -Headers $headers -ContentType 'application/json' -Body $item
+```
+
+Run the role authorization tests from the project root with the virtual environment active.
+
+```bash
+python -m pytest tests/test_role_auth.py -q
+```
+
+### Checkout validation
+
+`POST /customers/{customer_id}/checkout/validate` requires the customer's bearer token and returns the active cart if it is ready for pricing. It checks the account, cart contents, restaurant status, item availability, and quantities against current data. Validation leaves the cart and orders unchanged.
+
+An absent active cart returns `404`. An empty or invalid cart, closed or missing restaurant, or unavailable item returns `409`.
 
 ## Data and Configuration
 

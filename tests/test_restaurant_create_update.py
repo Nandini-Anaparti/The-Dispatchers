@@ -16,8 +16,8 @@ NEW_RESTAURANT = {
 
 # ---- create ----
 
-def test_create_restaurant_returns_201_with_next_id(client):
-    response = client.post("/restaurants", json=NEW_RESTAURANT)
+def test_create_restaurant_returns_201_with_next_id(admin_client):
+    response = admin_client.post("/restaurants", json=NEW_RESTAURANT)
     assert response.status_code == 201
     body = response.json()
     assert body["id"] == 3  # sample data has ids 1 and 2
@@ -26,30 +26,30 @@ def test_create_restaurant_returns_201_with_next_id(client):
     assert body["rating"] == 0  # default
 
 
-def test_created_restaurant_is_saved_to_file(client, temp_data_file):
-    client.post("/restaurants", json=NEW_RESTAURANT)
+def test_created_restaurant_is_saved_to_file(admin_client, temp_data_file):
+    admin_client.post("/restaurants", json=NEW_RESTAURANT)
     saved = json.loads(temp_data_file.read_text(encoding="utf-8"))
     assert len(saved) == 3
     assert saved[-1]["name"] == "Test Tacos"
     # and it shows up through the API too
-    assert client.get("/restaurants/3").json()["name"] == "Test Tacos"
+    assert admin_client.get("/restaurants/3").json()["name"] == "Test Tacos"
 
 
-def test_create_restaurant_missing_field_returns_422(client):
+def test_create_restaurant_missing_field_returns_422(admin_client):
     bad = {k: v for k, v in NEW_RESTAURANT.items() if k != "name"}
-    response = client.post("/restaurants", json=bad)
+    response = admin_client.post("/restaurants", json=bad)
     assert response.status_code == 422
 
 
-def test_create_restaurant_negative_fee_returns_422(client):
-    response = client.post("/restaurants", json={**NEW_RESTAURANT, "delivery_fee": -1})
+def test_create_restaurant_negative_fee_returns_422(admin_client):
+    response = admin_client.post("/restaurants", json={**NEW_RESTAURANT, "delivery_fee": -1})
     assert response.status_code == 422
 
 
 # ---- update ----
 
-def test_update_changes_only_sent_fields(client):
-    response = client.put("/restaurants/1", json={"is_open": False, "delivery_fee": 0.99})
+def test_update_changes_only_sent_fields(admin_client):
+    response = admin_client.put("/restaurants/1", json={"is_open": False, "delivery_fee": 0.99})
     assert response.status_code == 200
     body = response.json()
     assert body["is_open"] is False
@@ -57,20 +57,20 @@ def test_update_changes_only_sent_fields(client):
     assert body["name"] == "Test Pizza"  # untouched
 
 
-def test_update_is_saved_to_file(client, temp_data_file):
-    client.put("/restaurants/2", json={"name": "Renamed Sushi"})
+def test_update_is_saved_to_file(admin_client, temp_data_file):
+    admin_client.put("/restaurants/2", json={"name": "Renamed Sushi"})
     saved = json.loads(temp_data_file.read_text(encoding="utf-8"))
     assert saved[1]["name"] == "Renamed Sushi"
     assert saved[0]["name"] == "Test Pizza"  # other restaurant unchanged
 
 
-def test_update_missing_restaurant_returns_404(client):
-    response = client.put("/restaurants/999", json={"name": "Ghost"})
+def test_update_missing_restaurant_returns_404(admin_client):
+    response = admin_client.put("/restaurants/999", json={"name": "Ghost"})
     assert response.status_code == 404
 
 
-def test_update_invalid_rating_returns_422(client):
-    response = client.put("/restaurants/1", json={"rating": 7})
+def test_update_invalid_rating_returns_422(admin_client):
+    response = admin_client.put("/restaurants/1", json={"rating": 7})
     assert response.status_code == 422
 
 
@@ -95,8 +95,8 @@ def test_repository_update_unknown_id_returns_none(temp_data_file):
 
 # ---- API documentation ----
 
-def test_openapi_documents_restaurant_404s(client):
-    paths = client.get("/openapi.json").json()["paths"]
+def test_openapi_documents_restaurant_404s(admin_client):
+    paths = admin_client.get("/openapi.json").json()["paths"]
     assert "404" in paths["/restaurants/{restaurant_id}"]["get"]["responses"]
     assert "404" in paths["/restaurants/{restaurant_id}"]["put"]["responses"]
     assert "201" in paths["/restaurants"]["post"]["responses"]

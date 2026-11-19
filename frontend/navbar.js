@@ -1,26 +1,58 @@
+
 const navbar = document.getElementById("site-nav");
 
 const pages = [
-    { name: "Restaurants", url: "/", ready: true },
-    { name: "Manage Restaurants", url: "/frontend/manage.html", ready: true },
-    { name: "Login", url: "/frontend/login.html", ready: false },
-    { name: "Register", url: "/frontend/register.html", ready: true },
-    { name: "My Account", url: "/frontend/account.html", ready: false },
-    { name: "Cart", url: "/frontend/cart.html", ready: false },
-    { name: "Checkout", url: "/frontend/checkout.html", ready: false },
-    { name: "Orders", url: "/frontend/orders.html", ready: false },
-    { name: "Manage Menu", url: "/frontend/menu-management.html", ready: false },
-    { name: "Reviews", url: "/frontend/reviews.html", ready: false }
+    { name: "Restaurants", url: "/", ready: true, roles: ["guest", "customer", "restaurant owner", "admin"] },
+    { name: "Manage Restaurants", url: "/frontend/manage.html", ready: true, roles: ["restaurant owner", "admin"] },
+    { name: "Manage Menu", url: "/frontend/menu-management.html", ready: true, roles: ["restaurant owner", "admin"] },
+    { name: "Login", url: "/frontend/login.html", ready: true, roles: ["guest"] },
+    { name: "Register", url: "/frontend/register.html", ready: true, roles: ["guest"] },
+    { name: "My Account", url: "/frontend/account.html", ready: true, roles: ["customer"] },
+    { name: "Cart", url: "/frontend/cart.html", ready: false, roles: ["customer"] },
+    { name: "Checkout", url: "/frontend/checkout.html", ready: false, roles: ["customer"] },
+    { name: "Orders", url: "/frontend/orders.html", ready: true, roles: ["customer"] },
+    { name: "Reviews", url: "/frontend/reviews.html", ready: false, roles: ["customer"] }
 ];
 
-if (navbar) {
-    for (const page of pages) {
+async function showNavbar() {
+    let currentUser = null;
 
-        if (page.ready === false) {
+    const token = sessionStorage.getItem("access_token");
+
+    if (token) {
+        try {
+            const response = await fetch("/auth/me", {
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            });
+
+            if (response.ok) {
+                currentUser = await response.json();
+            } else if (response.status === 401) {
+                sessionStorage.removeItem("access_token");
+            }
+
+        } catch (error) {
+            console.error("Could not check login status:", error);
+        }
+    }
+
+    const role = currentUser ? currentUser.role : "guest";
+
+    navbar.replaceChildren();
+
+    for (const page of pages) {
+        if (!page.ready) {
+            continue;
+        }
+
+        if (!page.roles.includes(role)) {
             continue;
         }
 
         const link = document.createElement("a");
+
         link.href = page.url;
         link.textContent = page.name;
 
@@ -31,4 +63,22 @@ if (navbar) {
 
         navbar.appendChild(link);
     }
+
+    if (currentUser) {
+        const logoutButton = document.createElement("button");
+
+        logoutButton.type = "button";
+        logoutButton.textContent = "Logout";
+
+        logoutButton.addEventListener("click", () => {
+            sessionStorage.removeItem("access_token");
+            window.location.href = "/";
+        });
+
+        navbar.appendChild(logoutButton);
+    }
+}
+
+if (navbar) {
+    showNavbar();
 }
