@@ -90,7 +90,7 @@ Copy this block for each new entry.
 - Purpose: CHECKOUT-03: create and persist a complete order snapshot (customer, restaurant, items, checkout-time prices, total, status) through a new Order Repository.
 - Influence: Used the generated implementation and tests.
 - Validation: Ran the full pytest suite locally, including tests that the order stores every required field, is saved to JSON, gets a unique ID, survives a restart, keeps its checkout-time price after a menu price change, and that an empty cart creates no order.
-- PR: #__
+- PR: #111
 
 #### Entry A7
 - Student(s): Anjana Ratnala
@@ -100,7 +100,7 @@ Copy this block for each new entry.
 - Purpose: CHECKOUT-04: save the order first and only then close the cart, leaving the cart unchanged if saving fails.
 - Influence: Used the generated implementation and tests.
 - Validation: Ran the full pytest suite locally, including a simulated order-save failure that leaves the cart unchanged, a successful checkout that saves the order and closes the cart, rejection of empty or mismatched carts, and a new empty cart after checkout.
-- PR: #__
+- PR: #112
 
 #### Entry A8
 - Student(s): Anjana Ratnala
@@ -109,7 +109,17 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: ORDER-01: let customers retrieve one order and their order history.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally, including tests for item/price/total/status in the response, newest-first history, 404 for missing and other customers' orders, 401/403 access rules, and orders still being there after a restart. Manually tried the endpoints through the FastAPI `/docs` page.
+- Validation: Ran the full pytest suite locally, including tests for item/price/total/status in the response, newest-first history, 404 for missing and other customers' orders, 401/403 access rules, and orders still being there after a restart.
+- PR: #114
+
+#### Entry A9
+- Student(s): Anjana Ratnala
+- Artifact: `app/schemas/order.py` (`ALLOWED_TRANSITIONS`, `OrderStatusUpdate`), `app/repositories/order_repository.py` (`update_status`, `get_by_restaurant`), `app/services/order_service.py` (`update_status`), `app/api/routes/restaurant_orders.py`, `tests/orders/test_order_lifecycle.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-02: let a restaurant's owner or an admin move orders through placed, preparing, ready, delivered and completed (or cancelled), rejecting any other transition.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including the full happy path, seven invalid transitions (skipping, going backwards, leaving completed or cancelled), the status being saved to JSON, and 401/403/404/409/422 API responses for wrong roles, other restaurants and bad statuses.
 - PR: #__
 
 ---
