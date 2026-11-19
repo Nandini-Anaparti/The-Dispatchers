@@ -210,6 +210,12 @@ python -m pytest tests/test_role_auth.py -q
 
 An absent active cart returns `404`. An empty or invalid cart, closed or missing restaurant, or unavailable item returns `409`.
 
+## Checkout pricing
+
+POST /customers/{customer_id}/checkout/price runs the same checks as checkout validation, then returns the cart with its subtotal, delivery fee, and total recalculated from the current menu prices. A cart line stores only a menu item and a quantity, so a price changed since the item was added is picked up automatically. Totals sent by a client are ignored. The request saves nothing and places no order. It returns the same errors as validation: 401, 403, 404 for a missing active cart, and 409 for an invalid cart.
+
+The cart page and checkout use one calculation (app/services/pricing.py), so their totals always agree. Run the pricing tests with python -m pytest tests/cart/test_checkout_pricing.py -v.
+
 ## Data and Configuration
 
 Representative restaurant data is stored in:
