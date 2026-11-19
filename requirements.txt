@@ -3,3 +3,6 @@ uvicorn[standard]
 pytest
 httpx
 pydantic>2.0,<3.0
+email-validator
+argon2-cffi
+PyJWT

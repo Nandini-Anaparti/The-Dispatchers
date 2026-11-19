@@ -60,3 +60,16 @@ class MenuItemRepository:
                 self.save_all(items)
                 return item
         return None
+    
+    def deactivate_item(self, item_id):
+        items = self.get_all()
+
+        for item in items:
+            if item.id == item_id:
+                item.is_active = False
+                item.is_available = False
+
+                self.save_all(items)
+                return item
+
+        return None

@@ -24,6 +24,32 @@ Copy this block for each new entry.
 
 ---
 
+## Ayah Hamdona
+
+### Milestone 2 (Integrated Core System)
+
+#### Entry AY1
+- Student(s): Ayah Hamdona
+- Artifact: `app/services/customer_rules.py`, `app/schemas/cart.py`, `app/repositories/cart_repository.py`, `app/services/cart_service.py`, `app/api/routes/carts.py`, `tests/cart/`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CART-01 to CART-06: create or retrieve the active cart, add items, update quantities, remove items, clear the cart, and calculate totals in the backend, plus the shared active-customer rule used by the cart and checkout.
+- Influence: Used the generated implementation and tests, and followed its step-by-step instructions to split the work into one pull request per user story.
+- Validation: Ran the full pytest suite locally before each pull request, including tests for the one-active-cart rule, one restaurant per cart, unavailable items, invalid quantities, totals that follow current menu prices, deactivated customers, and persistence to JSON. Teammates reviewed each pull request. Domenica later added ownership checks and atomic repository updates on top of this work.
+PR: #101, #102, #104, #105, #106, #108
+
+#### Entry AY2
+- Student(s): Ayah Hamdona
+- Artifact: `app/services/pricing.py`, `app/services/cart_service.py` (`build_view`), `app/services/checkout_service.py` (`price`), `app/api/routes/checkout.py` (`POST /customers/{customer_id}/checkout/price`), `tests/cart/test_checkout_pricing.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-02: recalculate the subtotal, delivery fee, and total from current menu prices at checkout, and move the price calculation that the cart and checkout both need into one function.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally (267 passing), including tests that a menu price change before checkout changes the total, that the cart file stores no prices, that totals sent by a client are ignored, and that the cart view and checkout always show the same totals. The existing cart totals tests still pass unchanged after the refactor.
+- PR: #__
+
+---
+
 ## Anjana Ratnala
 
 ### Milestone 0 (Foundation Gate)
@@ -80,6 +106,38 @@ Copy this block for each new entry.
 - Validation: Ran the full pytest suite locally (46 passing), including tests that new and updated restaurants are saved to the data file, that missing restaurants return 404, that invalid input returns 422, and that the 404 responses appear in the OpenAPI docs. All tests use temporary data files, so the committed `data/restaurants.json` is not modified. Manually tested creating a restaurant, updating one, and requesting a missing id (404) through the FastAPI `/docs` page, and reviewed the implementation by walking through the code and explaining how each layer works.
 - PR: #16
 
+### Milestone 2 (Integrated Core System)
+
+#### Entry A6
+- Student(s): Anjana Ratnala
+- Artifact: `app/schemas/order.py`, `app/repositories/order_repository.py`, `app/services/order_service.py`, `app/core/order_config.py`, `data/orders.json`, `tests/orders/`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-03: create and persist a complete order snapshot (customer, restaurant, items, checkout-time prices, total, status) through a new Order Repository.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests that the order stores every required field, is saved to JSON, gets a unique ID, survives a restart, keeps its checkout-time price after a menu price change, and that an empty cart creates no order.
+- PR: #__
+
+#### Entry A7
+- Student(s): Anjana Ratnala
+- Artifact: `app/services/order_service.py` (`finalize_checkout`), `tests/orders/test_checkout_finalize.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-04: save the order first and only then close the cart, leaving the cart unchanged if saving fails.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including a simulated order-save failure that leaves the cart unchanged, a successful checkout that saves the order and closes the cart, rejection of empty or mismatched carts, and a new empty cart after checkout.
+- PR: #__
+
+#### Entry A8
+- Student(s): Anjana Ratnala
+- Artifact: `app/api/routes/orders.py`, `app/services/order_service.py` (`list_orders`, `get_order`), `app/main.py`, `tests/orders/test_order_retrieval.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-01: let customers retrieve one order and their order history.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests for item/price/total/status in the response, newest-first history, 404 for missing and other customers' orders, 401/403 access rules, and orders still being there after a restart. Manually tried the endpoints through the FastAPI `/docs` page.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti
@@ -127,3 +185,109 @@ Copy this block for each new entry.
 - Influence: Used AI for guidance on how to combine multiple filters and make sure only the matching menu items were returned. I also used it to help figure out why the update function wasn't working properly and how to fix it.
 - Validation: Went through the code myself to make sure I understood how the filtering worked, and ran the tests to check that filtering by name, price, and availability returned the expected results. I also tested the update function to make sure changes were being saved correctly to the JSON file.
 - PR: #14
+
+---
+
+## Domenica Vizcaino Andrade
+
+### Milestone 2 (Integrated Core System)
+
+#### Entry D1
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: `docs/M2_BUSINESS_RULES.md`
+- Label: AI-REVISED
+- AI tool: ChatGPT
+- Purpose: Help check the cross-subsystem business-rule plan against the Milestone 2 instructions to make sure everything is covered.
+- Influence: After writing the business rules, the LLM helped revise the business rules md file in this project based on the instructions of milestone 2.
+- Validation: The initial draft was compared against the supplied M2 instructions and current restaurant/menu code (the only one we have implemented at the moment). Customer/cart/order interfaces still require team agreement and check since they are still being implemented.
+- PR: #51
+
+#### Customer Profile
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer profile API, JSON persistence, My Account page, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Implement profile retrieval and updates for signed-in customers.
+- Influence: Codex added customer-only endpoints, limited edits to name and delivery address, connected the frontend form, and added regression tests.
+- Validation: All 129 pytest tests passed, including tests for persistence, validation, and account isolation.
+- PR: #103
+
+#### Customer Address
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: My Account address form, customer profile API and persistence, and profile tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Let customers manage delivery addresses through My Account.
+- Influence: Codex added structured address validation and preserved the formatted address field used by existing customer records.
+- Validation: All 135 pytest tests passed. The address tests cover adding, updating, retrieving, and rejecting missing or blank fields. Checkout integration is pending the checkout implementation.
+- PR: #107
+
+#### Entry D2
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: `app/api/routes/menu_items.py`, `tests/test_role_auth.py`
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Make the existing menu management authorization dependency explicit and extend API regression coverage.
+- Influence: Codex moved the shared permission check to the route decorators and added coverage for invalid bearer tokens, mismatched restaurant and item IDs, and public item detail access.
+- Validation: API tests exercise the routes using temporary JSON data and check that rejected writes leave the menu data intact.
+- PR: #100
+
+#### Active Cart Architecture
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Cart route, repository, service, and API tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Enforce authenticated cart ownership and preserve one active cart per customer under concurrent requests.
+- Influence: Codex added a reusable ownership dependency and moved active-cart lookup, ID allocation, and saving into one repository operation protected by an in-process lock.
+- Validation: Tests exercise authorization and verify that concurrent requests return the same cart ID with one active record in temporary JSON storage.
+- PR: #110
+
+#### Cart Integration
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Cart routes, service, repository, and API tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Integrate the cart branches with the ownership and persistence changes already on main.
+- Influence: Codex resolved merge conflicts, applied ownership checks across the router, and moved cart mutations into one locked repository operation.
+- Validation: API tests cover the combined cart workflow, authorization, invalid menu items, and concurrent item additions.
+- PR: #116
+
+#### Customer Order History
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer Orders page, navigation, and order retrieval tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Let signed-in customers view their saved orders and item details.
+- Influence: Codex connected the page to the team's existing order API and added a regression test for historical prices after menu changes.
+- Validation: Tests cover authenticated order retrieval, order ownership, history after menu edits, and frontend asset delivery.
+- PR: #118
+
+#### API Documentation
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: FastAPI route metadata and `tests/test_openapi.py`
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Bring the generated OpenAPI contract in line with the Milestone 2 requirements.
+- Influence: Codex documented existing error responses, operations, and parameters and added schema regression checks.
+- Validation: The OpenAPI tests check descriptions, success response schemas, and expected client errors.
+- PR: #119.
+
+#### Customer Account Deactivation
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Customer deactivation API, My Account confirmation, checkout finalization, and integration tests
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Allow customers to deactivate their own account while retaining existing records.
+- Influence: Codex added a status-only user update, connected the confirmation flow, and reused the active-customer rule before checkout saves an order.
+- Validation: Tests verify persisted deactivation, denied profile and cart access, and rejection of checkout finalization while preserving the cart and existing orders.
+- PR: #117
+
+#### Checkout Validation
+- Student(s): Domenica Vizcaino Andrade
+- Artifact: Checkout validation service, API route, and `tests/cart/test_checkout_validation.py`
+- Label: AI-ASSISTED
+- AI tool: Codex
+- Purpose: Validate the current customer, cart, restaurant, and menu before order placement.
+- Influence: Codex added a read-only validation step and integration tests for successful validation and rejected checkout attempts.
+- Validation: Tests verify current menu data is used and that validation leaves cart and order files unchanged.
+- PR: #120.
