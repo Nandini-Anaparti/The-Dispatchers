@@ -14,6 +14,10 @@ ALLOWED_TRANSITIONS; anything else is rejected.
 
 ORDER-03: cancel_order() lets a customer cancel their own order while it is
 still "placed" (before the restaurant starts preparing it).
+
+ORDER-04: orders are never deleted and only their status can change
+(OrderRepository.update_status), so completed and cancelled orders keep the
+items and checkout-time prices they were saved with.
 """
 
 from datetime import datetime, timezone

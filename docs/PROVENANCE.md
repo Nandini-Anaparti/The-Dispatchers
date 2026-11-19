@@ -132,6 +132,16 @@ Copy this block for each new entry.
 - Validation: Ran the full pytest suite locally, including cancelling a placed order, rejecting cancellation once preparing, ready, completed or already cancelled, another customer's order, 401/403/404/409 API responses, and the cancelled order staying in the history after a restart.
 - PR: #__
 
+#### Entry A11
+- Student(s): Anjana Ratnala
+- Artifact: `tests/orders/test_order_history_integrity.py`, docstring in `app/services/order_service.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-04: verify that completed and cancelled orders stay stored and unchanged.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests that completed and cancelled orders are retrievable, that items, quantities and checkout-time prices do not change through the lifecycle or after a menu price change or deactivation, and that history survives a restart.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti
