@@ -142,6 +142,16 @@ Copy this block for each new entry.
 - Validation: Ran the full pytest suite locally, including tests that completed and cancelled orders are retrievable, that items, quantities and checkout-time prices do not change through the lifecycle or after a menu price change or deactivation, and that history survives a restart.
 - PR: #__
 
+#### Entry A12
+- Student(s): Anjana Ratnala
+- Artifact: `app/repositories/json_storage.py`, `app/repositories/menu_item_repository.py`, `tests/test_menu_item_repository_storage.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: Architectural improvement: move the menu-item repository onto a shared atomic, locked JSON write so a failed or concurrent save can no longer corrupt or lose menu data.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including a regression test that simulates a crash during a menu save and checks the original file is still intact, a concurrency test with parallel availability updates, and the existing menu tests.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti
