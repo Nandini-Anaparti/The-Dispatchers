@@ -24,6 +24,32 @@ Copy this block for each new entry.
 
 ---
 
+## Ayah Hamdona
+
+### Milestone 2 (Integrated Core System)
+
+#### Entry AY1
+- Student(s): Ayah Hamdona
+- Artifact: `app/services/customer_rules.py`, `app/schemas/cart.py`, `app/repositories/cart_repository.py`, `app/services/cart_service.py`, `app/api/routes/carts.py`, `tests/cart/`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CART-01 to CART-06: create or retrieve the active cart, add items, update quantities, remove items, clear the cart, and calculate totals in the backend, plus the shared active-customer rule used by the cart and checkout.
+- Influence: Used the generated implementation and tests, and followed its step-by-step instructions to split the work into one pull request per user story.
+- Validation: Ran the full pytest suite locally before each pull request, including tests for the one-active-cart rule, one restaurant per cart, unavailable items, invalid quantities, totals that follow current menu prices, deactivated customers, and persistence to JSON. Teammates reviewed each pull request. Domenica later added ownership checks and atomic repository updates on top of this work.
+PR: #101, #102, #104, #105, #106, #108
+
+#### Entry AY2
+- Student(s): Ayah Hamdona
+- Artifact: `app/services/pricing.py`, `app/services/cart_service.py` (`build_view`), `app/services/checkout_service.py` (`price`), `app/api/routes/checkout.py` (`POST /customers/{customer_id}/checkout/price`), `tests/cart/test_checkout_pricing.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: CHECKOUT-02: recalculate the subtotal, delivery fee, and total from current menu prices at checkout, and move the price calculation that the cart and checkout both need into one function.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally (267 passing), including tests that a menu price change before checkout changes the total, that the cart file stores no prices, that totals sent by a client are ignored, and that the cart view and checkout always show the same totals. The existing cart totals tests still pass unchanged after the refactor.
+- PR: #__
+
+---
+
 ## Anjana Ratnala
 
 ### Milestone 0 (Foundation Gate)

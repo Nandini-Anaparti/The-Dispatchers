@@ -6,10 +6,11 @@ from app.repositories.cart_repository import CartRepository
 from app.repositories.menu_item_repository import MenuItemRepository
 from app.repositories.restaurant_repository import RestaurantRepository
 from app.repositories.user_repository import UserRepository
-from app.schemas.cart import Cart
+from app.schemas.cart import Cart, CartView
 from app.schemas.menu_item import MenuItem
 from app.schemas.restaurant import Restaurant
 from app.services.customer_rules import require_active_customer
+from app.services.pricing import price_cart
 
 
 class ActiveCartNotFoundError(Exception):
@@ -69,3 +70,12 @@ class CheckoutService:
             validated_items[item.id] = item
 
         return ValidatedCheckout(cart, restaurant, validated_items)
+
+    def price(self, validated: ValidatedCheckout) -> CartView:
+        """CHECKOUT-02: price a validated cart from the CURRENT menu data.
+
+        validate() just read the menu items from the repository, and a cart line only stores
+        an item ID and a quantity, so no earlier price is ever trusted.
+        """
+        return price_cart(validated.cart, validated.menu_items, validated.restaurant.delivery_fee)
+    
