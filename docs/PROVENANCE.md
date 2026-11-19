@@ -119,8 +119,8 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: ORDER-02: let a restaurant's owner or an admin move orders through placed, preparing, ready, delivered and completed (or cancelled), rejecting any other transition.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally, including the full happy path, seven invalid transitions (skipping, going backwards, leaving completed or cancelled), the status being saved to JSON, and 401/403/404/409/422 API responses for wrong roles, other restaurants and bad statuses.
-- PR: #__
+- Validation: Ran the full pytest suite locally, including the full happy path, seven invalid transitions (skipping, going backwards, leaving completed or cancelled), the status being saved to JSON, and 401/403/404/409/422 API responses for wrong roles, other restaurants and bad statuses. Read through the code in each file to check it made sense before opening the PR.
+- PR: #124
 
 #### Entry A10
 - Student(s): Anjana Ratnala
@@ -129,8 +129,8 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: ORDER-03: let customers cancel their own order while it is still placed.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally, including cancelling a placed order, rejecting cancellation once preparing, ready, completed or already cancelled, another customer's order, 401/403/404/409 API responses, and the cancelled order staying in the history after a restart.
-- PR: #__
+- Validation: Ran the full pytest suite locally, including cancelling a placed order, rejecting cancellation once preparing, ready, completed or already cancelled, another customer's order, 401/403/404/409 API responses, and the cancelled order staying in the history after a restart. Read through the code in each file to check it made sense before opening the PR.
+- PR: #125
 
 #### Entry A11
 - Student(s): Anjana Ratnala
@@ -139,8 +139,8 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: ORDER-04: verify that completed and cancelled orders stay stored and unchanged.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally, including tests that completed and cancelled orders are retrievable, that items, quantities and checkout-time prices do not change through the lifecycle or after a menu price change or deactivation, and that history survives a restart.
-- PR: #__
+- Validation: Ran the full pytest suite locally, including tests that completed and cancelled orders are retrievable, that items, quantities and checkout-time prices do not change through the lifecycle or after a menu price change or deactivation, and that history survives a restart. Read through the code in each file to check it made sense before opening the PR.
+- PR: #126
 
 #### Entry A12
 - Student(s): Anjana Ratnala
@@ -149,8 +149,8 @@ Copy this block for each new entry.
 - AI tool: Claude
 - Purpose: Architectural improvement: move the menu-item repository onto a shared atomic, locked JSON write so a failed or concurrent save can no longer corrupt or lose menu data.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally, including a regression test that simulates a crash during a menu save and checks the original file is still intact, a concurrency test with parallel availability updates, and the existing menu tests.
-- PR: #__
+- Validation: Ran the full pytest suite locally, including a regression test that simulates a crash during a menu save and checks the original file is still intact, a concurrency test with parallel availability updates, and the existing menu tests. Read through the code in each file to check it made sense before opening the PR.
+- PR: #128
 
 ---
 
