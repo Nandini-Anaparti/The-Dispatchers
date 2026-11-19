@@ -125,3 +125,42 @@ def test_checkout_requires_an_active_authenticated_cart_owner(
 
     assert response.status_code == status
     assert [path.read_bytes() for path in checkout_storage] == before
+
+def test_menu_deactivation_blocks_cart_and_checkout(
+    signed_in_cart_client, cart_auth_headers, cart_env, checkout_storage
+):
+    add_item(signed_in_cart_client, menu_item_id=1)
+
+    response = signed_in_cart_client.patch(
+        "/restaurants/1/menu-items/1/deactivate",
+        headers=cart_auth_headers(4)
+    )
+
+    assert response.status_code == 200
+    assert response.json()["is_active"] is False
+
+    response = signed_in_cart_client.get(
+        "/restaurants/1/menu-items"
+    )
+
+    assert all(item["id"] != 1 for item in response.json())
+
+    response = signed_in_cart_client.post(
+        "/customers/1/cart/items",
+        json={"menu_item_id": 1}
+    )
+
+    assert response.status_code == 409
+
+    carts_path, orders_path = checkout_storage
+    original_cart = carts_path.read_bytes()
+    original_orders = orders_path.read_bytes()
+
+    response = signed_in_cart_client.post(
+        "/customers/1/checkout/validate"
+    )
+
+    assert response.status_code == 409
+
+    assert carts_path.read_bytes() == original_cart
+    assert orders_path.read_bytes() == original_orders

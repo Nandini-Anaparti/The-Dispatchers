@@ -1,11 +1,18 @@
+
 from app.schemas.menu_item import MenuItem
+
 
 class MenuItemService:
     def __init__(self, menu_repository, restaurant_repository):
         self.menu_repository = menu_repository
         self.restaurant_repository = restaurant_repository
 
-    
+    def require_restaurant(self, restaurant_id):
+        restaurant = self.restaurant_repository.get_by_id(restaurant_id)
+
+        if restaurant is None:
+            raise RestaurantNotFoundError()
+
     def get_menu_items(
         self,
         restaurant_id,
@@ -14,10 +21,7 @@ class MenuItemService:
         is_available=None,
         include_inactive=False
     ):
-        restaurant = self.restaurant_repository.get_by_id(restaurant_id)
-
-        if restaurant is None:
-            raise RestaurantNotFoundError()
+        self.require_restaurant(restaurant_id)
 
         items = self.menu_repository.get_by_restaurant(restaurant_id)
         filtered_items = []
@@ -43,10 +47,7 @@ class MenuItemService:
         return filtered_items
 
     def get_menu_item(self, restaurant_id, item_id):
-        restaurant = self.restaurant_repository.get_by_id(restaurant_id)
-
-        if restaurant is None:
-            raise RestaurantNotFoundError()
+        self.require_restaurant(restaurant_id)
 
         item = self.menu_repository.get_by_id(item_id)
 
@@ -57,12 +58,9 @@ class MenuItemService:
             raise MenuItemNotFoundError()
 
         return item
-    
-    def add_menu_item(self, restaurant_id, new_item):
-        restaurant = self.restaurant_repository.get_by_id(restaurant_id)
 
-        if restaurant is None:
-            raise RestaurantNotFoundError()
+    def add_menu_item(self, restaurant_id, new_item):
+        self.require_restaurant(restaurant_id)
 
         items = self.menu_repository.get_all()
 

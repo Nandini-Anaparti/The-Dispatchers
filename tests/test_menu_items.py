@@ -1,4 +1,5 @@
 import json
+import pytest
 
 def test_get_menu_items(tmp_path, monkeypatch, admin_client):
     file_path = tmp_path / "menu_items.json"
@@ -364,3 +365,45 @@ def test_deactivate_invalid_menu_item(tmp_path, monkeypatch, admin_client):
     assert response.status_code == 404
 
     assert json.loads(file_path.read_text()) == items
+    
+@pytest.mark.parametrize("method, url, body", [
+    ("GET", "/restaurants/999/menu-items", None),
+    ("GET", "/restaurants/999/menu-items/1", None),
+    ("POST", "/restaurants/999/menu-items", {
+        "name": "Pasta",
+        "description": "Tomato pasta",
+        "price": 12.99,
+        "is_available": True
+    }),
+    ("PUT", "/restaurants/999/menu-items/1", {
+        "name": "Pasta",
+        "description": "Tomato pasta",
+        "price": 12.99,
+        "is_available": True
+    }),
+    ("PATCH", "/restaurants/999/menu-items/1/deactivate", None)
+])
+
+def test_missing_restaurant_returns_404(
+    tmp_path, monkeypatch, admin_client, method, url, body
+):
+    file_path = tmp_path / "menu_items.json"
+
+    items = [{
+        "id": 1,
+        "restaurant_id": 1,
+        "name": "Pizza",
+        "description": "Cheese pizza",
+        "price": 12.99,
+        "is_available": True
+    }]
+
+    file_path.write_text(json.dumps(items), encoding="utf-8")
+    monkeypatch.setenv("MENU_ITEMS_DATA_PATH", str(file_path))
+
+    original_data = file_path.read_text()
+
+    response = admin_client.request(method, url, json=body)
+
+    assert response.status_code == 404
+    assert file_path.read_text() == original_data
