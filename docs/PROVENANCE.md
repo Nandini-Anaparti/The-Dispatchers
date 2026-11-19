@@ -186,6 +186,63 @@ PR: #101, #102, #104, #105, #106, #108
 - Validation: Went through the code myself to make sure I understood how the filtering worked, and ran the tests to check that filtering by name, price, and availability returned the expected results. I also tested the update function to make sure changes were being saved correctly to the JSON file.
 - PR: #14
 
+### Milestone 2 (Integrated Core System)
+
+#### Entry N5
+
+- Student(s): Nandini Anaparti
+- Artifact: frontend/navbar.js, frontend/styles.css, tests/test_navbar.py
+- Label: AI-ASSISTED
+- AI tool: ChatGPT
+- Purpose: To help with creating the navigation bar and later updating it to show links based on the user's role.
+- Influence: Used AI for guidance on setting up the navigation links, checking the user's role through /auth/me.
+- Validation: Went through the code myself to make sure I understood how the navigation worked. I also ran the tests and manually checked that the correct links showed up for different users, including after logging in and out.
+- PR: #56, #87
+
+#### Entry N6
+
+- Student(s): Nandini Anaparti
+- Artifact: app/schemas/user.py, app/repositories/user_repository.py, app/services/user_service.py, app/api/routes/customers.py, app/api/routes/restaurant_owners.py, frontend/register.html, frontend/register.js, frontend/owner-register.html, frontend/owner-register.js
+- Label: AI-ASSISTED
+- AI tool: ChatGPT
+- Purpose: To help implement registration for customers and restaurant owners.
+- Influence: Used AI for guidance on validating registration information, checking for duplicate emails, and hashing passwords
+- Validation: Reviewed the code myself and ran the registration tests to check that users could register successfully, invalid information was rejected, and passwords were saved securely.
+- PR: #63, #78
+
+#### Entry N7
+
+- Student(s): Nandini Anaparti
+- Artifact: app/core/auth.py, app/api/routes/auth.py, app/schemas/auth.py, frontend/login.html, frontend/login.js, tests/test_auth.py, tests/test_login_frontend.py
+- Label: AI-ASSISTED
+- AI tool: ChatGPT
+- Purpose: To help implement backend authentication and connect it to the frontend login and logout functionality.
+- Influence: Used AI to help understand JWT authentication, as well as for guidance on checking login credentials, handling invalid or expired tokens, and storing and removing tokens through the frontend.
+- Validation: Went through the authentication code to make sure I understood how everything worked. I ran the authentication and login tests, and also tested the endpoints through Swagger. I manually checked that users could log in and out and that incorrect credentials were handled properly.manually.
+- PR: #71, #72
+
+#### Entry N8
+
+- Student(s): Nandini Anaparti
+- Artifact: app/core/permissions.py, app/api/routes/restaurants.py, app/api/routes/menu_items.py, tests/test_role_auth.py
+- Label: AI-ASSISTED
+- AI tool: ChatGPT
+- Purpose: To help with adding role based authorization for customers, restaurant owners, and admins.
+- Influence: Used AI for guidance on writing the permission checks and making sure users could only access the functionalities that they were allowed to use. I also used it to help figure out how to test requests made by users who should not have access.
+- Validation: Reviewed the code myself and ran the authorization tests and checked that restaurant owners could only manage their own restaurants, customers could not modify restaurants or menus, and admins had the required permissions.
+- PR: #75
+
+#### Entry N9
+
+- Student(s): Nandini Anaparti
+- Artifact: frontend/menu-management.html, frontend/menu-management.js, app/schemas/menu_item.py, app/repositories/menu_item_repository.py, app/services/menu_item_service.py, app/api/routes/menu_items.py, tests/test_menu_items.py, tests/test_menu_management_frontend.py
+- Label: AI-ASSISTED
+- AI tool: ChatGPT
+- Purpose: To help with implementing the menu management and menu item deactivation.
+- Influence: Used ChatGPT for guidance on connecting the frontend forms to the existing menu endpoints. I also used it to help with the deactivation functionality so that menu items could be hidden from customers without being permanently deleted.
+- Validation: Went through the code myself and ran the menu tests and full pytest tests. I also tested adding, editing, and deactivating menu items through the frontend and checked that deactivated items were hidden from customers but were still available in the management page for the respective restaurant owner, and the system admins.
+- PR: #79, #82
+
 ---
 
 ## Domenica Vizcaino Andrade
