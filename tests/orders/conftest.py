@@ -20,9 +20,10 @@ def _item(iid, rid, price):
             "price": price, "is_available": True}
 
 
-def _user(uid, role="customer"):
+def _user(uid, role="customer", restaurant_ids=()):
     return {"id": uid, "name": f"U{uid}", "email": f"u{uid}@x.com", "role": role,
-            "is_active": True, "delivery_address": "5 Home St", "password_hash": "x"}
+            "is_active": True, "delivery_address": "5 Home St", "password_hash": "x",
+            "restaurant_ids": list(restaurant_ids)}
 
 
 @pytest.fixture
@@ -30,7 +31,10 @@ def order_env(tmp_path, monkeypatch):
     files = {
         "restaurants.json": [_restaurant(1)],
         "menu_items.json": [_item(1, 1, 10.0), _item(2, 1, 5.0)],
-        "users.json": [_user(1), _user(2), _user(9, role="admin")],
+        "users.json": [_user(1), _user(2), _user(9, role="admin"),
+                       # 5 owns restaurant 1, 6 owns a different restaurant
+                       _user(5, role="restaurant owner", restaurant_ids=[1]),
+                       _user(6, role="restaurant owner", restaurant_ids=[2])],
         # customer 1 has an active cart with 2 x Item1 and 1 x Item2
         "carts.json": [{"id": 1, "customer_id": 1, "restaurant_id": 1, "status": "active",
                         "items": [{"menu_item_id": 1, "quantity": 2},

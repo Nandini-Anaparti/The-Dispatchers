@@ -12,7 +12,9 @@ from app.repositories.user_repository import UserRepository
 from app.schemas.order import Order
 from app.schemas.user import UserInDB
 from app.services.customer_rules import CustomerInactiveError, CustomerNotFoundError
-from app.services.order_service import OrderNotFoundError, OrderService
+from app.services.order_service import (
+    OrderNotCancellableError, OrderNotFoundError, OrderService,
+)
 
 CustomerId = Annotated[int, Path(description="ID of the signed-in customer who owns the orders")]
 OrderId = Annotated[int, Path(description="ID of a saved order belonging to this customer")]
@@ -35,6 +37,7 @@ ERRORS = {
     CustomerNotFoundError: (404, "Customer not found"),
     CustomerInactiveError: (403, "Customer account is deactivated"),
     OrderNotFoundError: (404, "Order not found"),
+    OrderNotCancellableError: (409, "This order can no longer be cancelled"),
 }
 
 RESPONSES = {
@@ -71,3 +74,12 @@ def list_orders(customer_id: CustomerId, service: OrderService = Depends(get_ord
 def get_order(customer_id: CustomerId, order_id: OrderId, service: OrderService = Depends(get_order_service)):
     """Return a saved order with its checkout-time prices. A missing order or one owned by another customer returns 404."""
     return call(lambda: service.get_order(customer_id, order_id))
+
+
+@router.post("/{order_id}/cancel", response_model=Order,
+             responses={**RESPONSES, 409: {"description": "Order is past the point where it can be cancelled"}},
+             summary="Cancel one of your orders (only while it is still placed)")
+def cancel_order(customer_id: CustomerId, order_id: OrderId, service: OrderService = Depends(get_order_service)):
+    """Cancel the customer's own order while it is still placed. The order is kept with status
+    cancelled. Orders that are preparing, ready, completed or already cancelled return 409."""
+    return call(lambda: service.cancel_order(customer_id, order_id))

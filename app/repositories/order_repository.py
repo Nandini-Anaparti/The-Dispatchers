@@ -38,6 +38,24 @@ class OrderRepository:
             self._save_all(orders)
         return order
 
+    def get_by_restaurant(self, restaurant_id: int) -> list[Order]:
+        return [o for o in self.get_all() if o.restaurant_id == restaurant_id]
+
+    def update_status(self, order_id: int, status: str) -> Order | None:
+        """Change ONLY the status of a saved order.
+
+        There is deliberately no general "update order" method, so items, prices
+        and totals saved at checkout can never be rewritten.
+        """
+        with _orders_lock:
+            orders = self.get_all()
+            for index, order in enumerate(orders):
+                if order.id == order_id:
+                    orders[index] = order.model_copy(update={"status": status})
+                    self._save_all(orders)
+                    return orders[index]
+        return None
+
     def _save_all(self, orders: list[Order]) -> None:
         with _orders_lock:
             tmp = self.data_path.with_suffix(".tmp")
