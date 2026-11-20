@@ -178,6 +178,16 @@ PR: #101, #102, #104, #105, #106, #108
 - Validation: Ran the full pytest suite locally, including a regression test that simulates a crash during a menu save and checks the original file is still intact, a concurrency test with parallel availability updates, and the existing menu tests. Read through the code in each file to check it made sense before opening the PR.
 - PR: #128
 
+#### Entry A13
+- Student(s): Anjana Ratnala
+- Artifact: `app/services/place_order_service.py`, `app/api/routes/checkout.py` (`POST /customers/{customer_id}/checkout`), `frontend/cart.html`, `frontend/cart.js`, `frontend/orders.js`, `tests/orders/test_customer_to_order_workflow.py`, `tests/test_cart_frontend.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: Connect checkout end to end: one endpoint and a Place order button that validate the cart (CHECKOUT-01), re-price it from current menu data (CHECKOUT-02), save the order and only then close the cart (CHECKOUT-03/04), then show the new order.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including the integrated Customer -> Restaurant -> Menu -> Cart -> Checkout -> Order test (register, log in, browse, add to cart, check out, retrieve the order, restart), plus price-change revalidation, an unavailable item blocking checkout with the cart kept, an empty cart, a deactivated customer, another customer's cart, and no token.
+- PR: #__
+
 ---
 
 ## Nandini Anaparti

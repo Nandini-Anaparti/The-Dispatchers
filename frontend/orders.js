@@ -95,6 +95,10 @@ async function loadOrderHistory() {
             orderHistoryStatus.textContent = "You haven't placed any orders yet.";
             return;
         }
+        const placedId = new URLSearchParams(window.location.search).get("placed");
+        if (placedId) {
+            orderHistoryStatus.textContent = `Order #${placedId} placed! You can see it below.`;
+        }
     } catch {
         orderHistoryError.textContent = "Could not load your orders. Refresh to try again.";
     } finally {
