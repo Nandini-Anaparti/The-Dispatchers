@@ -6,8 +6,6 @@ const cartItems = document.getElementById("cart-items");
 const cartSummary = document.getElementById("cart-summary");
 const placeOrderButton = document.getElementById("place-order");
 const checkoutError = document.getElementById("checkout-error");
-let signedInCustomerId = null;
-
 let customerId = null;
 let authHeaders = null;
 
@@ -172,12 +170,10 @@ async function loadCart() {
             return;
         }
 
-        signedInCustomerId = customer.id;
-        const response = await fetch(`/customers/${customer.id}/cart`, { headers });
-        if (response.status === 401) {
-            sessionStorage.removeItem("access_token");
-            showCartSignIn();
-            return;
+        customerId = customer.id;
+        const cart = await cartRequest("GET", "");
+        if (cart) {
+            renderCart(cart);
         }
     } catch {
         cartError.textContent = "Could not load your cart. Refresh to try again.";
@@ -194,7 +190,7 @@ async function placeOrder() {
     try {
         const token = sessionStorage.getItem("access_token");
         // The backend re-checks the menu and recalculates the total, then saves the order.
-        const response = await fetch(`/customers/${signedInCustomerId}/checkout`, {
+        const response = await fetch(`/customers/${customerId}/checkout`, {
             method: "POST",
             headers: { Authorization: "Bearer " + token },
         });
