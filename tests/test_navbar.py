@@ -39,7 +39,7 @@ def test_unfinished_pages(client):
 
     js_code = response.text
 
-    assert 'name: "Cart", url: "/frontend/cart.html", ready: false' in js_code
+    assert 'name: "Checkout", url: "/frontend/checkout.html", ready: false' in js_code
 
 def test_role_based_navigation(client):
     response = client.get("/frontend/navbar.js")

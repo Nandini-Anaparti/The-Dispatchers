@@ -8,7 +8,7 @@ const pages = [
     { name: "Login", url: "/frontend/login.html", ready: true, roles: ["guest"] },
     { name: "Register", url: "/frontend/register.html", ready: true, roles: ["guest"] },
     { name: "My Account", url: "/frontend/account.html", ready: true, roles: ["customer"] },
-    { name: "Cart", url: "/frontend/cart.html", ready: false, roles: ["customer"] },
+    { name: "Cart", url: "/frontend/cart.html", ready: true, roles: ["customer"] },
     { name: "Checkout", url: "/frontend/checkout.html", ready: false, roles: ["customer"] },
     { name: "Orders", url: "/frontend/orders.html", ready: true, roles: ["customer"] },
     { name: "Reviews", url: "/frontend/reviews.html", ready: false, roles: ["customer"] }
