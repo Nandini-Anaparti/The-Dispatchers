@@ -637,7 +637,16 @@ It verifies that:
 
 Tests use temporary or isolated JSON data to avoid changing the representative application data.
 
-### Continuous Integration
+### Continuous Integration and Regression Evidence
+
+Run the automated **Customer → Menu → Cart → Checkout → Order** workflow and its regression cases from the repository root:
+
+```bash
+python -m pytest tests/test_continuous_integration_and_regression_evidence.py -v
+```
+
+- **Cross-subsystem integration - Domenica.** A restaurant owner changes a menu item's price through the API after a customer adds it to the cart. The test checks that the cart displays the updated total and that checkout saves an order with the updated price.
+- **Regression coverage.** If an item becomes unavailable, is deactivated, or goes missing after being added, checkout returns HTTP 409 and preserves the saved cart and order files.
 
 GitHub Actions runs the automated pytest suite when changes are pushed to `main` or when a pull request targets `main`.
 
