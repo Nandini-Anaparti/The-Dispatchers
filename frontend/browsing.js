@@ -108,6 +108,16 @@ const restaurantInfo = document.querySelector("#restaurant-info");
 const menuList = document.querySelector("#menu-list");
 const backButton = document.querySelector("#back-button");
 
+// Shows the result of adding an item to the cart, right under the loading status.
+const cartMessage = document.createElement("p");
+cartMessage.id = "cart-message";
+cartMessage.setAttribute("role", "status");
+detailsStatus.after(cartMessage);
+
+// Counts how many restaurant screens the customer has opened or left. An Add to cart
+// response only shows its message if this number is unchanged since the request started.
+let cartMessageVersion = 0;
+
 const browsingSections = [
   document.querySelector("#search-form").closest("section"),
   document.querySelector("#restaurant-list").closest("section"),
@@ -134,6 +144,88 @@ function addText(parent, tag, text, className = "") {
   return element;
 }
 
+function showCartMessage(text, isError = false, link = null) {
+  cartMessage.replaceChildren(text);
+  cartMessage.classList.toggle("error", isError);
+  if (link) {
+    const anchor = document.createElement("a");
+    anchor.href = link.href;
+    anchor.textContent = link.label;
+    cartMessage.append(" ", anchor);
+  }
+}
+
+function showCartSignIn(text) {
+  showCartMessage(text, true, { href: "/frontend/login.html", label: "Sign in" });
+}
+
+async function addToCart(item, button) {
+  const token = sessionStorage.getItem("access_token");
+  if (!token) {
+    showCartSignIn("Sign in as a customer to add items to your cart.");
+    return;
+  }
+
+  // Messages from this request only appear while the customer is still on the same screen.
+  const messageVersion = cartMessageVersion;
+  const report = (text, isError = false, link = null) => {
+    if (messageVersion === cartMessageVersion) {
+      showCartMessage(text, isError, link);
+    }
+  };
+  const reportSignIn = (text) => report(text, true, { href: "/frontend/login.html", label: "Sign in" });
+
+  button.disabled = true;
+  report("Adding to your cart…");
+  try {
+    const headers = { Authorization: "Bearer " + token };
+    const session = await fetch("/auth/me", { headers });
+    if (session.status === 401) {
+      sessionStorage.removeItem("access_token");
+      reportSignIn("Your session has expired. Sign in again to add items.");
+      return;
+    }
+    if (!session.ok) {
+      throw new Error(`Request failed: ${session.status}`);
+    }
+    const customer = await session.json();
+    if (customer.role !== "customer") {
+      report("Only customer accounts can add items to a cart.", true);
+      return;
+    }
+
+    const response = await fetch(`/customers/${customer.id}/cart/items`, {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ menu_item_id: item.id, quantity: 1 }),
+    });
+    if (response.status === 401) {
+      sessionStorage.removeItem("access_token");
+      reportSignIn("Your session has expired. Sign in again to add items.");
+      return;
+    }
+    if (response.status === 404 || response.status === 409) {
+      const data = await response.json();
+      const reason = typeof data.detail === "string" ? data.detail : "That item could not be added.";
+      report(reason, true);
+      return;
+    }
+    if (!response.ok) {
+      throw new Error(`Request failed: ${response.status}`);
+    }
+
+    report(`Added "${item.name}" to your cart.`, false, {
+      href: "/frontend/cart.html",
+      label: "View cart",
+    });
+  } catch (error) {
+    report("Could not add the item. Please try again.", true);
+    console.error(error);
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function createMenuCard(item) {
   const card = document.createElement("article");
   card.className = "menu-card";
@@ -147,6 +239,14 @@ function createMenuCard(item) {
     item.is_available ? "Available" : "Unavailable",
     item.is_available ? "availability" : "availability unavailable"
   );
+
+  if (item.is_available) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = "Add to cart";
+    button.addEventListener("click", () => addToCart(item, button));
+    card.append(button);
+  }
 
   return card;
 }
@@ -166,6 +266,8 @@ async function showRestaurant(id) {
   detailsHeading.focus();
   detailsStatus.classList.remove("error");
   detailsStatus.textContent = "Loading restaurant and menu…";
+  cartMessageVersion += 1;
+  cartMessage.replaceChildren();
   restaurantInfo.replaceChildren();
   restaurantInfo.className = "";
   menuList.replaceChildren();
@@ -229,6 +331,8 @@ async function showRestaurant(id) {
 
 backButton.addEventListener("click", () => {
   activeRequest?.abort();
+  cartMessageVersion += 1;
+  cartMessage.replaceChildren();
   detailsSection.hidden = true;
 
   browsingSections.forEach((section) => {

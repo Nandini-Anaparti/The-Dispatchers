@@ -1,5 +1,6 @@
-from app.schemas.cart import Cart, CartItem, CartLine, CartView
+from app.schemas.cart import Cart, CartItem, CartView
 from app.services.customer_rules import require_active_customer
+from app.services.pricing import price_cart
 
 
 class MenuItemNotFoundError(Exception): pass
@@ -20,25 +21,16 @@ class CartService:
 
     def build_view(self, cart: Cart) -> CartView:
         """Prices always come from the CURRENT menu, never from the client."""
-        lines = []
+        menu_items = {}
         for entry in cart.items:
             item = self.menu_repo.get_by_id(entry.menu_item_id)
-            if item is None:
-                continue
-            lines.append(CartLine(
-                menu_item_id=item.id, name=item.name, unit_price=item.price,
-                quantity=entry.quantity, line_total=round(item.price * entry.quantity, 2),
-            ))
-        subtotal = round(sum(l.line_total for l in lines), 2)
+            if item is not None:
+                menu_items[item.id] = item
         fee = 0.0
-        if lines and cart.restaurant_id is not None:
+        if menu_items and cart.restaurant_id is not None:
             restaurant = self.restaurant_repo.get_by_id(cart.restaurant_id)
             fee = restaurant.delivery_fee if restaurant else 0.0
-        return CartView(
-            id=cart.id, customer_id=cart.customer_id, restaurant_id=cart.restaurant_id,
-            status=cart.status, items=lines, subtotal=subtotal,
-            delivery_fee=fee, total=round(subtotal + fee, 2),
-        )
+        return price_cart(cart, menu_items, fee)
 
     def get_cart(self, customer_id: int) -> CartView:
         require_active_customer(self.user_repo, customer_id)
@@ -104,3 +96,5 @@ class CartService:
 
         cart = self.cart_repo.mutate_active(customer_id, clear, create=True)
         return self.build_view(cart)
+
+    
