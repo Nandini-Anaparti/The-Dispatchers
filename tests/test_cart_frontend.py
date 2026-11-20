@@ -14,6 +14,10 @@ def test_cart_script_shows_backend_totals_from_the_cart_api(client):
     assert "/cart" in script.text
     assert 'sessionStorage.getItem("access_token")' in script.text
     assert "cart.subtotal" in script.text and "cart.total" in script.text
+    load_cart = script.text.split("async function loadCart()", 1)[1].split("async function placeOrder()", 1)[0]
+    assert "customerId = customer.id" in load_cart
+    assert 'await cartRequest("GET", "")' in load_cart
+    assert "renderCart(cart)" in load_cart
 
 
 def test_cart_link_is_in_the_customer_navigation(client):

@@ -2,7 +2,7 @@
 
 The Dispatchers is a food delivery application built using FastAPI for the backend and HTML, CSS, and JavaScript for the frontend.
 
-The application includes restaurant and menu browsing, customer and restaurant owner registration, authentication, role-based access, restaurant and menu management, shopping carts, checkout validation, and order history. Data is stored in JSON files, and pytest is used for testing.
+The application includes restaurant and menu browsing, customer and restaurant owner registration, authentication, role-based access, restaurant and menu management, shopping carts, checkout and order placement, and order history. Data is stored in JSON files, and pytest is used for testing.
 
 ## Requirements
 
@@ -60,6 +60,12 @@ Windows (PowerShell):
 
 ```powershell
 $env:AUTH_SECRET_KEY = python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+Windows (Command Prompt):
+
+```cmd
+for /f %i in ('python -c "import secrets; print(secrets.token_urlsafe(32))"') do set "AUTH_SECRET_KEY=%i"
 ```
 
 macOS / Linux:
@@ -203,8 +209,11 @@ Once the backend is running, open http://127.0.0.1:8000/.
 2. Log in using the email and password you registered with.
 3. Browse the available restaurants and select one to view its menu.
 4. Add an available menu item to your cart.
-5. Select Cart from the navigation bar to view your items and the total calculated by the backend.
-6. Select My Account to view or update your account information and delivery address.
+5. Select **Cart** to review the backend-calculated total. You can update quantities, remove items, or clear the cart.
+6. Select **Place order**. Checkout validates the current cart, recalculates prices from the menu, and saves the order before closing the cart.
+7. On the **Orders** page, verify the new order, including its items, status, and saved total.
+
+Use **My Account** to view or update your profile and delivery address.
 
 For a quick example, you can select La Vela Pizzeria from the existing restaurant data. Its menu includes Margherita Pizza and Garlic Bread.
 
@@ -413,18 +422,6 @@ An absent active cart returns `404`. An empty or invalid cart, closed or missing
 
 Checkout validation does not modify the saved cart or orders.
 
-### Placing an Order
-
-`POST /customers/{customer_id}/checkout` places an order. It repeats the validation and pricing checks, saves the order through the Order Repository, and only then closes the cart. A failed checkout leaves the cart unchanged.
-
-A successful checkout returns `201` with the new order. The Cart page's **Place order** button calls this endpoint and opens the Orders page after the order is placed.
-
-Run the end-to-end test using:
-
-```bash
-python -m pytest tests/orders/test_customer_to_order_workflow.py -v
-```
-
 ### Checkout Pricing
 
 `POST /customers/{customer_id}/checkout/price` performs the same checks as checkout validation and recalculates the subtotal, delivery fee, and total using current menu prices.
@@ -439,6 +436,18 @@ Run the pricing tests using:
 
 ```bash
 python -m pytest tests/cart/test_checkout_pricing.py -v
+```
+
+### Placing an Order
+
+`POST /customers/{customer_id}/checkout` places an order. It validates the active cart against current data, recalculates prices, saves the order, and then closes the cart. If validation fails or saving the order fails, the cart stays open.
+
+A successful checkout returns `201` with the new order. The Cart page's **Place order** button calls this endpoint and opens the Orders page after checkout.
+
+Run the end-to-end checkout and restart tests:
+
+```bash
+python -m pytest tests/orders/test_customer_to_order_workflow.py -v
 ```
 
 ### Order Creation and Order History
@@ -459,8 +468,6 @@ Customers can retrieve their own saved orders through:
 Sign in as a customer and select Orders to view saved orders.
 
 The order history uses prices saved when the order was created, so later menu changes do not change previous orders.
-
-The checkout finalization logic currently exists in the service layer. The API endpoint and frontend needed to place an order are not yet connected on `main`.
 
 Run the order tests using:
 
@@ -698,4 +705,3 @@ The-Dispatchers/
 - User passwords are stored as hashes, not plain text.
 - Do not commit passwords, authentication tokens, API keys, or `.env` files containing secrets.
 - The application uses JSON storage rather than a database.
-- The full customer-to-order workflow requires the remaining checkout API and frontend integration before it can be demonstrated end to end.
