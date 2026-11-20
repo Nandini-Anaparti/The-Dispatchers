@@ -120,7 +120,7 @@ Copy this block for each new entry.
 - Purpose: ORDER-02: let a restaurant's owner or an admin move orders through placed, preparing, ready, delivered and completed (or cancelled), rejecting any other transition.
 - Influence: Used the generated implementation and tests.
 - Validation: Ran the full pytest suite locally, including the full happy path, seven invalid transitions (skipping, going backwards, leaving completed or cancelled), the status being saved to JSON, and 401/403/404/409/422 API responses for wrong roles, other restaurants and bad statuses.
-- PR: #__
+- PR: #124
 
 ---
 
