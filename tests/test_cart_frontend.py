@@ -21,3 +21,18 @@ def test_cart_link_is_in_the_customer_navigation(client):
     assert 'name: "Cart", url: "/frontend/cart.html", ready: true, roles: ["customer"]' in js_code
 
 
+
+
+def test_cart_page_has_place_order_button(client):
+    page = client.get("/frontend/cart.html").text
+    assert 'id="place-order"' in page
+    assert 'id="checkout-error"' in page
+
+
+def test_place_order_button_calls_checkout_and_shows_the_order(client):
+    script = client.get("/frontend/cart.js").text
+    assert "/checkout`" in script and 'method: "POST"' in script
+    assert "response.status === 201" in script
+    assert "/frontend/orders.html?placed=" in script
+    orders_script = client.get("/frontend/orders.js").text
+    assert 'get("placed")' in orders_script

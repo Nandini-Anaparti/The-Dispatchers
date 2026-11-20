@@ -114,6 +114,7 @@ Tests in `tests/test_frontend.py` verify that the page and static assets are ser
 | PUT | `/restaurants/{restaurant_id}` | Updates only the fields sent. Returns `404` if the id does not exist, or `422` if a field is invalid |
 | GET | `/customers/{customer_id}/orders` | Your order history, newest first (customer token, own account only) |
 | GET | `/customers/{customer_id}/orders/{order_id}` | One of your orders. `404` if it does not exist or is not yours |
+| POST | `/customers/{customer_id}/checkout` | Place an order from your active cart. Re-checks the menu, recalculates the total, saves the order, then closes the cart. `201` with the order; `409` if the cart is empty or an item is unavailable |
 | POST | `/customers/{customer_id}/orders/{order_id}/cancel` | Cancel your own order while it is still `placed`. `409` otherwise |
 | GET | `/restaurants/{restaurant_id}/orders` | That restaurant's orders, newest first. Owner of that restaurant or admin |
 | PATCH | `/restaurants/{restaurant_id}/orders/{order_id}/status` | Move an order to its next status. `409` if the move is not allowed |
@@ -218,6 +219,8 @@ An absent active cart returns `404`. An empty or invalid cart, closed or missing
 POST /customers/{customer_id}/checkout/price runs the same checks as checkout validation, then returns the cart with its subtotal, delivery fee, and total recalculated from the current menu prices. A cart line stores only a menu item and a quantity, so a price changed since the item was added is picked up automatically. Totals sent by a client are ignored. The request saves nothing and places no order. It returns the same errors as validation: 401, 403, 404 for a missing active cart, and 409 for an invalid cart.
 
 The cart page and checkout use one calculation (app/services/pricing.py), so their totals always agree. Run the pricing tests with python -m pytest tests/cart/test_checkout_pricing.py -v.
+
+`POST /customers/{customer_id}/checkout` places the order. It runs the same validation and pricing, saves the order through the Order Repository, and only then closes the cart, so a failed checkout never loses the customer's items. It returns `201` with the new order. On the Cart page, the **Place order** button calls it and then opens the Orders page. Run the end-to-end test with `python -m pytest tests/orders/test_customer_to_order_workflow.py -v`.
 
 ## Data and Configuration
 

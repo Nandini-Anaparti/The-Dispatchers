@@ -4,6 +4,9 @@ const cartLogin = document.getElementById("cart-login");
 const cartContents = document.getElementById("cart-contents");
 const cartItems = document.getElementById("cart-items");
 const cartSummary = document.getElementById("cart-summary");
+const placeOrderButton = document.getElementById("place-order");
+const checkoutError = document.getElementById("checkout-error");
+let signedInCustomerId = null;
 
 let customerId = null;
 let authHeaders = null;
@@ -169,10 +172,12 @@ async function loadCart() {
             return;
         }
 
-        customerId = customer.id;
-        const cart = await cartRequest("GET", "");
-        if (cart) {
-            renderCart(cart);
+        signedInCustomerId = customer.id;
+        const response = await fetch(`/customers/${customer.id}/cart`, { headers });
+        if (response.status === 401) {
+            sessionStorage.removeItem("access_token");
+            showCartSignIn();
+            return;
         }
     } catch {
         cartError.textContent = "Could not load your cart. Refresh to try again.";
@@ -183,4 +188,30 @@ async function loadCart() {
     }
 }
 
+async function placeOrder() {
+    checkoutError.textContent = "";
+    placeOrderButton.disabled = true;
+    try {
+        const token = sessionStorage.getItem("access_token");
+        // The backend re-checks the menu and recalculates the total, then saves the order.
+        const response = await fetch(`/customers/${signedInCustomerId}/checkout`, {
+            method: "POST",
+            headers: { Authorization: "Bearer " + token },
+        });
+        if (response.status === 201) {
+            const order = await response.json();
+            window.location.href = `/frontend/orders.html?placed=${order.id}`;
+            return;
+        }
+        const problem = await response.json().catch(() => ({}));
+        checkoutError.textContent = problem.detail || "Checkout failed. Please try again.";
+        loadCart(); // show the current cart (prices or availability may have changed)
+    } catch {
+        checkoutError.textContent = "Could not place your order. Please try again.";
+    } finally {
+        placeOrderButton.disabled = false;
+    }
+}
+
+placeOrderButton.addEventListener("click", placeOrder);
 loadCart();
