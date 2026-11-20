@@ -116,7 +116,7 @@ PR: #101, #102, #104, #105, #106, #108
 - Purpose: CHECKOUT-03: create and persist a complete order snapshot (customer, restaurant, items, checkout-time prices, total, status) through a new Order Repository.
 - Influence: Used the generated implementation and tests.
 - Validation: Ran the full pytest suite locally, including tests that the order stores every required field, is saved to JSON, gets a unique ID, survives a restart, keeps its checkout-time price after a menu price change, and that an empty cart creates no order.
-- PR: #__
+- PR: #111
 
 #### Entry A7
 - Student(s): Anjana Ratnala
@@ -126,7 +126,7 @@ PR: #101, #102, #104, #105, #106, #108
 - Purpose: CHECKOUT-04: save the order first and only then close the cart, leaving the cart unchanged if saving fails.
 - Influence: Used the generated implementation and tests.
 - Validation: Ran the full pytest suite locally, including a simulated order-save failure that leaves the cart unchanged, a successful checkout that saves the order and closes the cart, rejection of empty or mismatched carts, and a new empty cart after checkout.
-- PR: #__
+- PR: #112
 
 #### Entry A8
 - Student(s): Anjana Ratnala
@@ -135,7 +135,57 @@ PR: #101, #102, #104, #105, #106, #108
 - AI tool: Claude
 - Purpose: ORDER-01: let customers retrieve one order and their order history.
 - Influence: Used the generated implementation and tests.
-- Validation: Ran the full pytest suite locally, including tests for item/price/total/status in the response, newest-first history, 404 for missing and other customers' orders, 401/403 access rules, and orders still being there after a restart. Manually tried the endpoints through the FastAPI `/docs` page.
+- Validation: Ran the full pytest suite locally, including tests for item/price/total/status in the response, newest-first history, 404 for missing and other customers' orders, 401/403 access rules, and orders still being there after a restart.
+- PR: #114
+
+#### Entry A9
+- Student(s): Anjana Ratnala
+- Artifact: `app/schemas/order.py` (`ALLOWED_TRANSITIONS`, `OrderStatusUpdate`), `app/repositories/order_repository.py` (`update_status`, `get_by_restaurant`), `app/services/order_service.py` (`update_status`), `app/api/routes/restaurant_orders.py`, `tests/orders/test_order_lifecycle.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-02: let a restaurant's owner or an admin move orders through placed, preparing, ready, delivered and completed (or cancelled), rejecting any other transition.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including the full happy path, seven invalid transitions (skipping, going backwards, leaving completed or cancelled), the status being saved to JSON, and 401/403/404/409/422 API responses for wrong roles, other restaurants and bad statuses. Read through the code in each file to check it made sense before opening the PR.
+- PR: #124
+
+#### Entry A10
+- Student(s): Anjana Ratnala
+- Artifact: `app/services/order_service.py` (`cancel_order`), `app/api/routes/orders.py` (`POST .../cancel`), `tests/orders/test_order_cancel.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-03: let customers cancel their own order while it is still placed.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including cancelling a placed order, rejecting cancellation once preparing, ready, completed or already cancelled, another customer's order, 401/403/404/409 API responses, and the cancelled order staying in the history after a restart. Read through the code in each file to check it made sense before opening the PR.
+- PR: #125
+
+#### Entry A11
+- Student(s): Anjana Ratnala
+- Artifact: `tests/orders/test_order_history_integrity.py`, docstring in `app/services/order_service.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: ORDER-04: verify that completed and cancelled orders stay stored and unchanged.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including tests that completed and cancelled orders are retrievable, that items, quantities and checkout-time prices do not change through the lifecycle or after a menu price change or deactivation, and that history survives a restart. Read through the code in each file to check it made sense before opening the PR.
+- PR: #126
+
+#### Entry A12
+- Student(s): Anjana Ratnala
+- Artifact: `app/repositories/json_storage.py`, `app/repositories/menu_item_repository.py`, `tests/test_menu_item_repository_storage.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: Architectural improvement: move the menu-item repository onto a shared atomic, locked JSON write so a failed or concurrent save can no longer corrupt or lose menu data.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including a regression test that simulates a crash during a menu save and checks the original file is still intact, a concurrency test with parallel availability updates, and the existing menu tests. Read through the code in each file to check it made sense before opening the PR.
+- PR: #128
+
+#### Entry A13
+- Student(s): Anjana Ratnala
+- Artifact: `app/services/place_order_service.py`, `app/api/routes/checkout.py` (`POST /customers/{customer_id}/checkout`), `frontend/cart.html`, `frontend/cart.js`, `frontend/orders.js`, `tests/orders/test_customer_to_order_workflow.py`, `tests/test_cart_frontend.py`
+- Label: AI-GENERATED
+- AI tool: Claude
+- Purpose: Connect checkout end to end: one endpoint and a Place order button that validate the cart (CHECKOUT-01), re-price it from current menu data (CHECKOUT-02), save the order and only then close the cart (CHECKOUT-03/04), then show the new order.
+- Influence: Used the generated implementation and tests.
+- Validation: Ran the full pytest suite locally, including the integrated Customer -> Restaurant -> Menu -> Cart -> Checkout -> Order test (register, log in, browse, add to cart, check out, retrieve the order, restart), plus price-change revalidation, an unavailable item blocking checkout with the cart kept, an empty cart, a deactivated customer, another customer's cart, and no token.
 - PR: #__
 
 ---

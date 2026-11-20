@@ -228,11 +228,11 @@ The API does not use a common `/api` prefix. For example, restaurant information
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health check. Returns `200` and `{"status": "ok"}` |
-| GET | `/restaurants` | Returns all restaurants. Optional filters: `name`, `cuisine`, `is_open`, `min_rating` |
+| GET | `/restaurants` | Returns all restaurants. Optional filters: `name` (partial, case-insensitive), `cuisine`, `is_open`, `min_rating` (0 to 5, otherwise `422`) |
 | GET | `/restaurants/{restaurant_id}` | Returns one restaurant, or `404` if it does not exist |
-| POST | `/restaurants` | Creates a restaurant. Requires restaurant owner or admin access |
-| PUT | `/restaurants/{restaurant_id}` | Updates a restaurant. Requires permission to manage it |
-| GET | `/restaurants/mine` | Returns assigned restaurants for an owner, or all restaurants for an admin |
+| POST | `/restaurants` | Creates a restaurant with a server-assigned ID. Requires restaurant owner or admin access. Returns `201`, or `422` for invalid input |
+| PUT | `/restaurants/{restaurant_id}` | Updates only the fields provided. Requires permission to manage the restaurant. Returns `404` for an unknown ID, or `422` for invalid input |
+| GET | `/restaurants/mine` | Returns the restaurants assigned to a restaurant owner, or all restaurants for an admin |
 | POST | `/customers` | Registers a customer account |
 | POST | `/restaurant-owners` | Registers a restaurant owner account |
 | POST | `/auth/login` | Verifies login credentials and returns an access token |
@@ -240,8 +240,12 @@ The API does not use a common `/api` prefix. For example, restaurant information
 | GET | `/customers/me` | Returns the signed-in customer's profile |
 | PUT | `/customers/me` | Updates the customer's name or delivery address |
 | POST | `/customers/me/deactivate` | Deactivates the signed-in customer account |
-| GET | `/customers/{customer_id}/orders` | Returns the customer's saved orders, newest first |
-| GET | `/customers/{customer_id}/orders/{order_id}` | Returns one order belonging to the customer |
+| GET | `/customers/{customer_id}/orders` | Returns the signed-in customer's orders, newest first. Requires access to that customer's account |
+| GET | `/customers/{customer_id}/orders/{order_id}` | Returns an order belonging to the signed-in customer, or `404` if it does not exist or is not theirs |
+| POST | `/customers/{customer_id}/checkout` | Places an order from the active cart. Revalidates items, recalculates totals, saves the order, then closes the cart. Returns `201`, or `409` if the cart is empty or an item is unavailable |
+| POST | `/customers/{customer_id}/orders/{order_id}/cancel` | Cancels the customer's order while its status is `placed`. Returns `409` otherwise |
+| GET | `/restaurants/{restaurant_id}/orders` | Returns the restaurant's orders, newest first. Requires the restaurant owner or admin |
+| PATCH | `/restaurants/{restaurant_id}/orders/{order_id}/status` | Moves an order to its next status. Returns `409` if the change is not allowed |
 | GET | `/docs` | Interactive OpenAPI (Swagger) documentation |
 
 The restaurant list supports the following optional filters:
@@ -399,8 +403,6 @@ Cart items must belong to the same restaurant. The backend also checks that item
 
 The cart stores menu item IDs and quantities. Prices and totals are calculated by the backend using current menu information.
 
-The cart page at `/frontend/cart.html` currently displays the cart contents and totals. Quantity changes, item removal, and clearing the cart are available through the API.
-
 ### Checkout Validation
 
 `POST /customers/{customer_id}/checkout/validate` requires the customer's bearer token.
@@ -410,6 +412,18 @@ It checks the current customer, active cart, restaurant status, menu item availa
 An absent active cart returns `404`. An empty or invalid cart, closed or missing restaurant, or unavailable menu item returns `409`.
 
 Checkout validation does not modify the saved cart or orders.
+
+### Placing an Order
+
+`POST /customers/{customer_id}/checkout` places an order. It repeats the validation and pricing checks, saves the order through the Order Repository, and only then closes the cart. A failed checkout leaves the cart unchanged.
+
+A successful checkout returns `201` with the new order. The Cart page's **Place order** button calls this endpoint and opens the Orders page after the order is placed.
+
+Run the end-to-end test using:
+
+```bash
+python -m pytest tests/orders/test_customer_to_order_workflow.py -v
+```
 
 ### Checkout Pricing
 

@@ -114,6 +114,10 @@ cartMessage.id = "cart-message";
 cartMessage.setAttribute("role", "status");
 detailsStatus.after(cartMessage);
 
+// Counts how many restaurant screens the customer has opened or left. An Add to cart
+// response only shows its message if this number is unchanged since the request started.
+let cartMessageVersion = 0;
+
 const browsingSections = [
   document.querySelector("#search-form").closest("section"),
   document.querySelector("#restaurant-list").closest("section"),
@@ -162,14 +166,23 @@ async function addToCart(item, button) {
     return;
   }
 
+  // Messages from this request only appear while the customer is still on the same screen.
+  const messageVersion = cartMessageVersion;
+  const report = (text, isError = false, link = null) => {
+    if (messageVersion === cartMessageVersion) {
+      showCartMessage(text, isError, link);
+    }
+  };
+  const reportSignIn = (text) => report(text, true, { href: "/frontend/login.html", label: "Sign in" });
+
   button.disabled = true;
-  showCartMessage("Adding to your cart…");
+  report("Adding to your cart…");
   try {
     const headers = { Authorization: "Bearer " + token };
     const session = await fetch("/auth/me", { headers });
     if (session.status === 401) {
       sessionStorage.removeItem("access_token");
-      showCartSignIn("Your session has expired. Sign in again to add items.");
+      reportSignIn("Your session has expired. Sign in again to add items.");
       return;
     }
     if (!session.ok) {
@@ -177,7 +190,7 @@ async function addToCart(item, button) {
     }
     const customer = await session.json();
     if (customer.role !== "customer") {
-      showCartMessage("Only customer accounts can add items to a cart.", true);
+      report("Only customer accounts can add items to a cart.", true);
       return;
     }
 
@@ -188,25 +201,25 @@ async function addToCart(item, button) {
     });
     if (response.status === 401) {
       sessionStorage.removeItem("access_token");
-      showCartSignIn("Your session has expired. Sign in again to add items.");
+      reportSignIn("Your session has expired. Sign in again to add items.");
       return;
     }
     if (response.status === 404 || response.status === 409) {
       const data = await response.json();
       const reason = typeof data.detail === "string" ? data.detail : "That item could not be added.";
-      showCartMessage(reason, true);
+      report(reason, true);
       return;
     }
     if (!response.ok) {
       throw new Error(`Request failed: ${response.status}`);
     }
 
-    showCartMessage(`Added "${item.name}" to your cart.`, false, {
+    report(`Added "${item.name}" to your cart.`, false, {
       href: "/frontend/cart.html",
       label: "View cart",
     });
   } catch (error) {
-    showCartMessage("Could not add the item. Please try again.", true);
+    report("Could not add the item. Please try again.", true);
     console.error(error);
   } finally {
     button.disabled = false;
@@ -253,6 +266,7 @@ async function showRestaurant(id) {
   detailsHeading.focus();
   detailsStatus.classList.remove("error");
   detailsStatus.textContent = "Loading restaurant and menu…";
+  cartMessageVersion += 1;
   cartMessage.replaceChildren();
   restaurantInfo.replaceChildren();
   restaurantInfo.className = "";
@@ -317,6 +331,8 @@ async function showRestaurant(id) {
 
 backButton.addEventListener("click", () => {
   activeRequest?.abort();
+  cartMessageVersion += 1;
+  cartMessage.replaceChildren();
   detailsSection.hidden = true;
 
   browsingSections.forEach((section) => {

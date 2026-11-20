@@ -11,6 +11,17 @@ from pydantic import BaseModel, Field
 
 OrderStatus = Literal["placed", "preparing", "ready", "delivered", "completed", "cancelled"]
 
+# ORDER-02: the only allowed status moves. Completed and cancelled are final.
+# (Team-agreed rule: the M2 instructions do not prescribe specific transitions.)
+ALLOWED_TRANSITIONS: dict[str, set[str]] = {
+    "placed": {"preparing", "cancelled"},
+    "preparing": {"ready", "cancelled"},
+    "ready": {"delivered"},
+    "delivered": {"completed"},
+    "completed": set(),
+    "cancelled": set(),
+}
+
 
 class OrderItem(BaseModel):
     menu_item_id: int
@@ -30,3 +41,9 @@ class Order(BaseModel):
     total: float = Field(ge=0)
     status: OrderStatus = "placed"
     created_at: datetime
+
+
+class OrderStatusUpdate(BaseModel):
+    """What restaurant staff send to move an order to its next status."""
+
+    status: OrderStatus

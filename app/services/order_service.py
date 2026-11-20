@@ -8,6 +8,16 @@ CHECKOUT-04: finalize_checkout() saves the order FIRST and only then closes the 
 If saving the order fails, the cart is left exactly as it was.
 
 ORDER-01: get_order() and list_orders() let a customer see their own orders.
+
+ORDER-02: update_status() moves an order through its lifecycle using
+ALLOWED_TRANSITIONS; anything else is rejected.
+
+ORDER-03: cancel_order() lets a customer cancel their own order while it is
+still "placed" (before the restaurant starts preparing it).
+
+ORDER-04: orders are never deleted and only their status can change
+(OrderRepository.update_status), so completed and cancelled orders keep the
+items and checkout-time prices they were saved with.
 """
 
 from datetime import datetime, timezone
@@ -15,13 +25,19 @@ from datetime import datetime, timezone
 from app.core.config import get_users_data_path
 from app.repositories.user_repository import UserRepository
 from app.schemas.cart import Cart, CartView
-from app.schemas.order import Order, OrderItem
+from app.schemas.order import ALLOWED_TRANSITIONS, Order, OrderItem
 from app.services.customer_rules import require_active_customer
 
 
 class EmptyOrderError(Exception): pass
 class CartMismatchError(Exception): pass
 class OrderNotFoundError(Exception): pass
+class InvalidStatusTransitionError(Exception): pass
+class OrderNotCancellableError(Exception): pass
+
+
+# Team-agreed rule: a customer may cancel only before preparation starts.
+CUSTOMER_CANCELLABLE_STATUSES = {"placed"}
 
 
 class OrderService:
@@ -80,3 +96,23 @@ class OrderService:
         if order is None or order.customer_id != customer_id:
             raise OrderNotFoundError()
         return order
+
+    def list_restaurant_orders(self, restaurant_id: int) -> list[Order]:
+        orders = self.order_repo.get_by_restaurant(restaurant_id)
+        return sorted(orders, key=lambda o: (o.created_at, o.id), reverse=True)
+
+    def update_status(self, restaurant_id: int, order_id: int, new_status: str) -> Order:
+        order = self.order_repo.get_by_id(order_id)
+        # Staff of another restaurant get "not found", not someone else's order.
+        if order is None or order.restaurant_id != restaurant_id:
+            raise OrderNotFoundError()
+        if new_status not in ALLOWED_TRANSITIONS[order.status]:
+            raise InvalidStatusTransitionError(f"Cannot change status from {order.status} to {new_status}")
+        return self.order_repo.update_status(order_id, new_status)
+
+    def cancel_order(self, customer_id: int, order_id: int) -> Order:
+        order = self.get_order(customer_id, order_id)  # checks customer + ownership
+        if order.status not in CUSTOMER_CANCELLABLE_STATUSES:
+            raise OrderNotCancellableError(f"Orders that are {order.status} cannot be cancelled")
+        # The order is kept, only its status changes, so it stays in the history.
+        return self.order_repo.update_status(order_id, "cancelled")
